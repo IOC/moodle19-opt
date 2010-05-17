@@ -886,4 +886,65 @@ function questionnaire_set_events($questionnaire) {
     }
 }
 
+/**
+ * This function is used by the reset_course_userdata function in moodlelib.
+ * This function will remove all responses from surveys in the specified course.
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function questionnaire_reset_userdata($data) {
+    global $CFG;
+    require_once($CFG->libdir.'/filelib.php');
+
+    $componentstr = get_string('modulenameplural', 'forum');
+    $status = array();
+
+    if (!empty($data->reset_questionnaire_delete_all_responses)) {
+         $select = 'response_id IN'
+            . " (SELECT r.id FROM {$CFG->prefix}questionnaire_response r"
+            . " INNER JOIN {$CFG->prefix}questionnaire_survey s ON r.survey_id = s.id"
+            . " INNER JOIN {$CFG->prefix}questionnaire q ON s.id = q.sid"
+            . " WHERE q.course = {$data->courseid})";
+        foreach (array('response_bool', 'resp_single', 'resp_multiple',
+                       'response_rank', 'response_text', 'response_other',
+                       'response_date') as $table) {
+            delete_records_select('questionnaire_' . $table, $select);
+        }
+
+        $select = 'survey_id IN'
+            . " (SELECT s.id FROM {$CFG->prefix}questionnaire_survey s"
+            . " INNER JOIN {$CFG->prefix}questionnaire q ON s.id = q.sid"
+            . " WHERE q.course = {$data->courseid})";
+        delete_records_select('questionnaire_response', $select);
+
+        $select = 'qid IN'
+            . " (SELECT q.id FROM {$CFG->prefix}questionnaire q"
+            . " WHERE q.course = {$data->courseid})";
+        delete_records_select('questionnaire_attempts', $select);
+
+        $status[] = array('component' => get_string('modulenameplural', 'questionnaire'),
+                          'item' => get_string('deleteallresponses', 'questionnaire'),
+                          'error' => false);
+    }
+
+    return $status;
+}
+
+/**
+ * Called by course/reset.php
+ * @param $mform form passed by reference
+ */
+function questionnaire_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'questionnaireheader', get_string('modulenameplural', 'questionnaire'));
+
+    $mform->addElement('checkbox', 'reset_questionnaire_delete_all_responses', get_string('deleteallresponses', 'questionnaire'));
+}
+
+/**
+ * Course reset form defaults.
+ */
+function questionnaire_reset_course_form_defaults($course) {
+    return array('reset_questionnaire_delete_all_responses' => 1);
+}
+
 ?>

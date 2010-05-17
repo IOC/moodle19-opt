@@ -52,6 +52,7 @@ $string['CM'] = 'Camerun';
 $string['CN'] = 'Xina';
 $string['CO'] = 'Colòmbia';
 $string['CR'] = 'Costa Rica';
+$string['CT'] = 'Catalunya';
 $string['CU'] = 'Cuba';
 $string['CV'] = 'Cap Verd';
 $string['CX'] = 'Illa Christmas';

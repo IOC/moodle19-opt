@@ -268,11 +268,11 @@ class assignment_noteflight extends assignment_base {
         $ynoptions = array( 0 => get_string('no'), 1 => get_string('yes'));
 
         $mform->addElement('static', '', '<a href="' . $CFG->block_noteflight_linkurl . '" '.
-                           'target="_new">' . get_string('scorespage', 'assignment') .
+                           'target="_new">' . get_string('scorespage', 'assignment_noteflight') .
                            '</a>');
 
         $mform->addElement('static', '', '<a href="' . $CFG->block_noteflight_linkurl .
-                           '/scores/create_template" target="_new">' . get_string('createtemplate', 'assignment') .
+                           '/scores/create_template" target="_new">' . get_string('createtemplate', 'assignment_noteflight') .
                            '</a>');
 
         $mform->addElement('select', 'resubmit', get_string("allowresubmit", "assignment"), $ynoptions);

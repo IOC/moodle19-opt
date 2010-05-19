@@ -516,8 +516,18 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
         $list[] = '<a href="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?id='.SITEID.'" >' . get_string('view_all', 'block_email_list') . '</a>';
         $icons[] = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/icon.gif" height="16" width="16" alt="' . get_string('view_all', 'block_email_list') . '" />';
 
+        $sql = "SELECT i.pageid FROM {$CFG->prefix}block_instance i"
+            . " LEFT JOIN {$CFG->prefix}block b ON b.id = i.blockid"
+            . " WHERE b.name = 'email_list' AND i.pagetype = 'course-view' AND i.visible = 1"
+            . " AND i.pageid IN (" .  implode(',', array_keys($mycourses)) . ')';
+        $email_courses = get_records_sql($sql);
+
 	// Get courses
 	foreach( $mycourses as $mycourse ) {
+
+            if (!isset($email_courses[$mycourse->id])) {
+                continue;
+            }
 
 		++$number; // increment for first course
 

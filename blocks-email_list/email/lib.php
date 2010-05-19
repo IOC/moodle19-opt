@@ -513,6 +513,9 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
 	$icons = array();
 
 	$number = 0;
+        $list[] = '<a href="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?id='.SITEID.'" >' . get_string('view_all', 'block_email_list') . '</a>';
+        $icons[] = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/icon.gif" height="16" width="16" alt="' . get_string('view_all', 'block_email_list') . '" />';
+
 	// Get courses
 	foreach( $mycourses as $mycourse ) {
 

@@ -17,6 +17,8 @@
 
 function email_backup_instance($bf, $preferences, $courseid) {
 
+    return true;
+
     //are there any emails to backup?
 
     if ($emails = get_records('block_email_list_mail', 'course', $courseid)) {

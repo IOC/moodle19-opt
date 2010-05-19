@@ -17,6 +17,8 @@
 
 function email_restore_instance($data, $restore) {
 
+    return true;
+
     $status = true;
 
     //restore the folders first

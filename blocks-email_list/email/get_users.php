@@ -20,7 +20,7 @@
 	$currentgroup  	= optional_param('group', 0, PARAM_INT);		// Selected Group
 	$roleid			= optional_param('roleid', 0, PARAM_INT);		// Role ID
 	$page			= optional_param('page', 0, PARAM_INT);			// Page
-	$perpage		= optional_param('perpage', 7, PARAM_INT);		// Max rows per page
+	$perpage		= optional_param('perpage', 10, PARAM_INT);		// Max rows per page
 	$search			= optional_param('search', '', PARAM_RAW);		// Searching users
 
 	$firstinitial 	= optional_param('fname', '', PARAM_ALPHA);		// Order by fistname

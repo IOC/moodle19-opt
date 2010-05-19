@@ -24,7 +24,7 @@
     $selgroup   = optional_param('group', 0, PARAM_INT);    	// Selected group
 	$roleid		= optional_param('roleid', 0, PARAM_INT);		// Role ID
 	$page		= optional_param('page', 0, PARAM_INT);			// Page
-	$perpage	= optional_param('perpage', 7, PARAM_INT);		// Max rows per page
+	$perpage	= optional_param('perpage', 10, PARAM_INT);		// Max rows per page
 	$search		= optional_param('search', '', PARAM_TEXT);	// Searching users
 
 	$firstinitial 	= optional_param('fname', '', PARAM_ALPHA);		// Order by fistname
@@ -195,10 +195,10 @@
 		'<iframe id="idsearch" name="bssearch" src="get_users.php?id='.$courseid.'&amp;roleid='.$roleid.'&amp;group='.$selgroup.'&amp;page='.$page.'&amp;perpage='.$perpage.'&amp;search='.$search.'&amp;fname='.$firstinitial.'&amp;lname='.$lastinitial.'" style="display:none;"></iframe>' . "\n\n";
 
 		print_spacer(1, 4, false);
-		if ( $perpage == '7' ) {
+		if ( $perpage == '10' ) {
 			echo '<div id="to_all_users" class="all_users"><img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/add.png" height="16" width="16" alt="'.get_string("course").'" /> <a href="'.$wwwroot.'/blocks/email_list/email/participants.php?id='.$courseid.'&amp;group='.$selgroup.'&amp;perpage=99999&amp;search='.$search.'&amp;roleid='.$roleid.'&amp;fname='.$firstinitial.'&amp;lname='.$lastinitial.'">'.get_string('showallusers').'</a></div>';
 		} else {
-			echo '<div id="to_all_users" class="all_users"><img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/delete.png" height="16" width="16" alt="'.get_string("course").'" /> <a href="'.$wwwroot.'/blocks/email_list/email/participants.php?id='.$courseid.'&amp;group='.$selgroup.'&amp;perpage=7&amp;search='.$search.'&amp;roleid='.$roleid.'&amp;fname='.$firstinitial.'&amp;lname='.$lastinitial.'">'.get_string('showperpage', '', 7).'</a></div>';
+			echo '<div id="to_all_users" class="all_users"><img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/delete.png" height="16" width="16" alt="'.get_string("course").'" /> <a href="'.$wwwroot.'/blocks/email_list/email/participants.php?id='.$courseid.'&amp;group='.$selgroup.'&amp;perpage=10&amp;search='.$search.'&amp;roleid='.$roleid.'&amp;fname='.$firstinitial.'&amp;lname='.$lastinitial.'">'.get_string('showperpage', '', 10).'</a></div>';
 		}
 	}
 		// Print close button

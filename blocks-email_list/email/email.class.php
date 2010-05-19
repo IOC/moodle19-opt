@@ -1173,7 +1173,10 @@ class eMail {
     function get_fullname_writer($override=false) {
 
     	if ( $user = get_record('user', 'id', $this->userid) ) {
-    		return $this->fullname($user, $override);
+                global $CFG;
+                return '<a href="'.$CFG->wwwroot.'/user/view.php?id='
+                    .$this->userid.'&course='.$this->course.'">'
+                    .$this->fullname($user, $override).'</a>';
     	} else {
     		return ''; // User not found
     	}
@@ -1208,7 +1211,10 @@ class eMail {
 			foreach ( $sendbox as $sendmail ) {
 				// Get user
 				if ( $user = get_record('user', 'id', $sendmail->userid) ) {
-					$users .= $this->fullname($user, $override) .', ';
+                                        global $CFG;
+                                        $users .= '<a href="'.$CFG->wwwroot.'/user/view.php?id='
+                                            .$user->id.'&course='.$this->course.'">'
+                                            .$this->fullname($user, $override).'</a>, ';
 				}
 			}
 

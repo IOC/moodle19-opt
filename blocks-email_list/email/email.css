@@ -6,7 +6,7 @@
  * Header for viewmail
  **/
 .headermail {
-    background: #336799;
+    background: #6790AA;
     color : #ffffff;
     font-size : 20px;
     font-weight : bold;
@@ -161,7 +161,7 @@
 }
 
 #left-column-email .sideblock .header {
-  background-color:#336799;
+  background-color:#6790AA;
   border-bottom-color:#F9FAFA;
 }
 #left-column-email .sideblock .list td {

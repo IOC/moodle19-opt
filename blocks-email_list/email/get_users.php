@@ -245,6 +245,8 @@
     // Define long page.
 	$table->pagesize($perpage, $totalcount);
 
+    $sort = ' ORDER BY u.lastname, u.firstname';
+
     if ( $courseid ) {
     	$userlist = get_records_sql($select.$from.$where.$sqlsearch.$sort, $table->get_page_start(), $table->get_page_size());
 

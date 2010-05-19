@@ -1565,7 +1565,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=NU
 	}
 
 
-	$mailsids = email_get_ids($mails);
+	$mailsids = array();
 
 	// Print all rows
 	foreach ($mails as $mail) {

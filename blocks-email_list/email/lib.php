@@ -1709,7 +1709,9 @@ function email_print_tabs_options($courseid, $folderid, $action=NULL) {
 
  	// Tab for writting new email
  	if ( has_capability('block/email_list:sendmessage', $context)) {
+            if ($courseid != SITEID) {
 		$tabrow[] = new email_tabobject('newmail',   $wwwroot.'/blocks/email_list/email/sendmail.php?course='.$courseid.'&amp;folderid='.$folderid,   get_string('newmail', 'block_email_list'), '<img alt="'.get_string('edit').'" width="15" height="13" src="'. $CFG->pixpath .'/i/edit.gif" />' );
+            }
  	}
 
  	if ( has_capability('block/email_list:createfolder', $context)) {

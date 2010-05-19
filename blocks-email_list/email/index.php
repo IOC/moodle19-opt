@@ -31,7 +31,7 @@
     $action 	= optional_param('action', '', PARAM_ALPHANUM); 	// Action to execute
 
 	$page       = optional_param('page', 0, PARAM_INT);          	// which page to show
-	$perpage    = optional_param('perpage', 10, PARAM_INT);  		// how many per page
+	$perpage    = optional_param('perpage', 40, PARAM_INT);  		// how many per page
 
 	// Only contain value, when moving mails to other folder
 	$folderoldid	= optional_param('folderoldid', 0, PARAM_INT); 		// folder ID Old

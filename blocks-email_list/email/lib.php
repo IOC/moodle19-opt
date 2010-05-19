@@ -1542,14 +1542,12 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=NU
 
 	// When no search
 	if (! $search) {
-		// Get mails
-		$mails = email_get_mails($userid, $course->id, $table->get_sql_sort(), '', '', $options);
+            $totalcount = email_get_mails($userid, $course->id, '', '', '', $options, true);
 	} else {
-		$mails = $mailssearch;
+            $totalcount = count($mailssearch);
 	}
 
 	// Define long page.
-	$totalcount = count($mails);
 	$table->pagesize($SESSION->email_mailsperpage, $totalcount);
 
 	$table->inputs(true);
@@ -1558,7 +1556,9 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=NU
 	if (! $search) {
 		// Get mails
 		$mails = email_get_mails($userid, $course->id, $table->get_sql_sort(), $table->get_page_start(), $table->get_page_size(), $options);
-	}
+	} else {
+            $mails = $mailssearch;
+        }
 
 	if (! $mails ) {
 		$mails = array();
@@ -1798,84 +1798,48 @@ function email_get_my_writemails($userid, $order = NULL) {
  * @return object Contain all send mails
  * @todo Finish documenting this function
  **/
-function email_get_mails($userid, $courseid=NULL, $sort = NULL, $limitfrom = '', $limitnum = '', $options = NULL) {
+function email_get_mails($userid, $courseid=null, $sort=null, $limitfrom='', $limitnum='', $options=null, $count=false) {
+    global $CFG;
 
-	global $CFG;
+    if ($count) {
+        $sql = "SELECT COUNT(DISTINCT m.id)";
+    } else {
+        $sql = "SELECT DISTINCT m.id, m.userid as writer, m.course, m.subject, m.timecreated, m.body";
+    }
 
-	// For apply order, I've writting an sql clause
-	$sql = "SELECT DISTINCT m.id, m.userid as writer, m.course, m.subject, m.timecreated, m.body
-                            FROM {$CFG->prefix}block_email_list_mail m
-                   LEFT JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid ";
+    $sql .= " FROM {$CFG->prefix}block_email_list_mail m"
+        . " JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid";
 
-	// WHERE principal clause for filter userid
-	$wheresql = " WHERE s.userid = $userid
-					AND s.sended = 1";
-	if ( $courseid != SITEID ) {
-		// WHERE principal clause for filter courseid
-		$wheresql = " WHERE s.course = $courseid
-					AND s.sended = 1";
-	}
+    if (empty($options->folderid)) {
+        $folder = email_get_root_folder($userid, EMAIL_INBOX);
+    } else {
+        $folder = email_get_folder($options->folderid);
+    }
 
-	if ( $options ) {
-		if ( isset($options->folderid ) ) {
-			// Filter by folder?
-			if ( $options->folderid != 0 ) {
+    if (email_isfolder_type($folder, EMAIL_SENDBOX)) {
+        $sql .= " WHERE m.userid = $userid AND s.sended = 1";
+        if ($courseid != SITEID) {
+            $sql .= " AND m.course = $courseid";
+        }
+    } elseif (email_isfolder_type($folder, EMAIL_DRAFT)) {
+        $sql .= " WHERE m.userid = $userid AND s.sended = 0";
+        if ($courseid != SITEID) {
+            $sql .= " AND m.course = $courseid";
+        }
+    } else {
+        $sql .= " JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid"
+            . " WHERE fm.folderid = $folder->id AND s.userid = $userid AND s.sended = 1";
+        if ($courseid != SITEID) {
+            $sql .= " AND s.course = $courseid";
+        }
+    }
 
-				// Get folder
-				$folder = email_get_folder($options->folderid);
-
-				if ( email_isfolder_type($folder, EMAIL_SENDBOX) ) {
-					// ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid
-					$wheresql = " WHERE m.userid = $userid
-									AND s.sended = 1";
-					if ( $courseid != SITEID) {
-						// WHERE principal clause for filter courseid
-						$wheresql = " WHERE m.course = $courseid
-										AND s.sended = 1";
-					}
-				} else if ( email_isfolder_type($folder, EMAIL_DRAFT) ) {
-					// ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid
-					$wheresql = " WHERE m.userid = $userid
-									AND s.sended = 0";
-					if ( $courseid != SITEID) {
-						// WHERE principal clause for filter courseid
-						$wheresql = " WHERE m.course = $courseid
-										AND s.sended = 0";
-					}
-				}
-
-				$sql .= " LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
-				$wheresql .= " AND fm.folderid = $options->folderid ";
-
-			} else {
-				/// If folder == 0, I've get inbox
-				// Get folder
-				$folder = email_get_root_folder($userid, EMAIL_INBOX);
-				$sql .= " LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
-				$wheresql .= " AND fm.folderid = $folder->id ";
-			}
-		} else {
-			/// If folder == 0, I've get inbox
-			// Get folder
-			$folder = email_get_root_folder($userid, EMAIL_INBOX);
-			$sql .= " LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
-			$wheresql .= " AND fm.folderid = $folder->id ";
-		}
-	} else {
-		/// If no options, I've get inbox, per default get this folder
-		// Get folder
-		$folder = email_get_root_folder($userid, EMAIL_INBOX);
-		$sql .= " LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
-		$wheresql .= " AND fm.folderid = $folder->id ";
-	}
-
-	if ($sort) {
-		$sortsql = ' ORDER BY '.$sort;
-	} else {
-		$sortsql = ' ORDER BY m.timecreated';
-	}
-
-	return get_records_sql($sql.$wheresql.$sortsql, $limitfrom, $limitnum);
+    if ($count) {
+        return count_records_sql($sql);
+    } else {
+        $sql .= ' ORDER BY ' . ($sort ? $sort : 'm.timecreated');
+        return get_records_sql($sql, $limitfrom, $limitnum);
+    }
 }
 
 /**

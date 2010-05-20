@@ -1031,7 +1031,7 @@ class eMail {
 	function get_file_area_name() {
 
 		//Get mail
-		if (! $mail = get_record('block_email_list_mail', 'id', $this->id) ) {
+		if (!$this->id) {
 			return false;
 		}
 

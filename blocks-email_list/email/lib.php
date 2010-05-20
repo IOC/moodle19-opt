@@ -625,6 +625,10 @@ function email_get_subfolders($folderid, $courseid=NULL, $admin=false) {
  * @todo Finish documenting this function
  **/
 function email_get_all_subfolders($folderid) {
+        static $cache = array();
+        if (isset($cache[$folderid])) {
+            return $cache[$folderid];
+        }
 
 	// Get childs for this parent
 	$childs = get_records('block_email_list_subfolder', 'folderparentid', $folderid);
@@ -643,8 +647,10 @@ function email_get_all_subfolders($folderid) {
 		}
 	} else {
 		// If no childs, return false
-		return false;
+            $subfolders = false;
 	}
+
+        $cache[$folderid] = $subfolders;
 
 	// Return subfolders
 	return $subfolders;

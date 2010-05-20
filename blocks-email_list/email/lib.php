@@ -1222,6 +1222,11 @@ function email_get_folder($folderid) {
  * @todo Finish documenting this function
  **/
 function email_create_parents_folders($userid) {
+        static $cache = array();
+        if (isset($cache[$userid])) {
+            return $cache[$userid];
+        }
+        $cache[$userid] = false;
 
 	$folders = new stdClass();
 	$folder = new stdClass();
@@ -1270,6 +1275,7 @@ function email_create_parents_folders($userid) {
 		}
 	}
 
+        $cache[$userid] = $folders;
 	return $folders;
 }
 

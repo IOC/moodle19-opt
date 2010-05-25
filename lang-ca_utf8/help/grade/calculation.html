@@ -2,13 +2,34 @@
 <!-- TRANSLATORS BEWARE!! The comma (,) sign used in the calculations may be a semi-colon (;)
 in your language. Please use whichever is used in your spreadsheet application. -->
 
-<p>En el butlletí de qualificacions, els càlculs segueixen el patró habitual dels programes de full de càlcul. Comencen amb un signe igual (=) i fan servir els operadors matemàtics i funcions comuns per donar com a resultat un valor numèric únic. Aquest resultat s'utilitzarà com a valor de l'element de qualificació que esteu editant.</p>
+<p>En el butlletí de qualificacions, els càlculs segueixen el patró habitual dels programes de full de càlcul. Comencen amb un signe igual (=) i fan servir els operadors matemàtics i lògics i funcions comuns per donar com a resultat un valor numèric únic. Aquest resultat s'utilitzarà com a valor de l'element de qualificació que esteu editant.</p>
+
+<p>Tot seguit teniu una llista dels operadors que es poden utilitzar:</p>
+<ul>
+  <li>nombre1 <strong>if</strong> booleà <strong>else</strong> nombre2</li>
+  <li>booleà1 <strong>or</strong> booleà2</li>
+  <li>booleà1 <strong>and</strong> booleà2</li>
+  <li><strong>not</strong> booleà</li>
+  <li>nombre1 <strong>=</strong> nombre2</li>
+  <li>nombre1 <strong>!=</strong> nombre2</li>
+  <li>nombre1 <strong>&lt;</strong> nombre2</li>
+  <li>nombre1 <strong>&gt;</strong> nombre2</li>
+  <li>nombre1 <strong>&lt;=</strong> nombre2</li>
+  <li>nombre1 <strong>&gt;=</strong> nombre2</li>
+  <li>nombre1 <strong>+</strong> nombre1</li>
+  <li>nombre1 <strong>-</strong> nombre1</li>
+  <li>nombre1 <strong>*</strong> nombre1</li>
+  <li>nombre1 <strong>/</strong> nombre1</li>
+  <li><strong>-</strong> nombre</li>
+  <li>nombre1 <strong>^</strong> nombre2</li>
+</ul>
 
 <p>Tot seguit teniu una llista de les funcions que es poden utilitzar en els càlculs. El caràcter de punt i coma (;)
 s'utilitza per separar els arguments de les funcions, dins dels parèntesis.</p>
 
 <ul>
     <li><strong>average</strong>([[element1]]; [[element2]]...): retorna la mitjana d'una mostra</li>
+    <li><strong>count</strong>(booleà1; booleà2...): retorna el nombre d'expressions booleanes que són certes</li>
     <li><strong>max</strong>([[element1]]; [[element2]]...): retorna el valor màxim d'una llista d'arguments</li>
     <li><strong>min</strong>([[element1]]; [[element2]]...): retorna el valor mínim d'una llista d'arguments</li>
     <li><strong>mod</strong>(dividend; divisor): calcula la resta d'una divisió</li>
@@ -37,4 +58,6 @@ s'utilitza per separar els arguments de les funcions, dins dels parèntesis.</p>
 <ul>
     <li>=average([[Q1]]; [[Q4]]; [[TASCA1]])</li>
     <li>=average(max([[Q1]]; [[Q4]]; [[TASCA1]]); min([[Q1]]; [[Q4]]; [[TASCA1]]))</li>
+    <li>=[[Assignment.1]] + (1 if [[Quiz.1]] >= 5 and [[Quiz.2]] >= 5 else 0)</li>
+    <li>=count([[Quiz.1]] >= 5; [[Quiz.2]] >= 5; [[Quiz.3]] >= 5; [[Quiz.4]] >= 5) * 2.5</li>
 </ul>

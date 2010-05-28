@@ -75,6 +75,12 @@
     if ($roles = get_roles_used_in_context($context, true)) {
         $canviewroles    = get_roles_with_capability('moodle/course:view', CAP_ALLOW, $context);
         $doanythingroles = get_roles_with_capability('moodle/site:doanything', CAP_ALLOW, $sitecontext);
+        $studentroles = array();
+
+        $local = local_course_record($COURSE->id);
+        if ($local->restrictemail and has_capability('moodle/legacy:student', $context, null, false)) {
+            $studentroles = get_roles_with_capability('moodle/legacy:student', CAP_ALLOW, $context);
+        }
 
         if ($context->id == $frontpagectx->id) {
             //we want admins listed on frontpage too
@@ -107,6 +113,13 @@
 	                continue;
 	            }
             }
+
+            if (isset($studentroles[$role->id])) {
+                $avoidroles[] = $role->id;
+                unset($roles[$role->id]);
+                continue;
+            }
+
             $rolenames[$role->id] = strip_tags(role_get_name($role, $context));   // Used in menus etc later on
         }
     }

@@ -35,7 +35,7 @@ $block_email_list_capabilities = array(
 
     'block/email_list:sendmessage' => array(
 
-        'riskbitmask' => RISK_SPAM | RISK_XSS,
+        'riskbitmask' => RISK_SPAM,
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -49,7 +49,7 @@ $block_email_list_capabilities = array(
 
     'block/email_list:createfolder' => array(
 
-        'riskbitmask' => RISK_SPAM | RISK_XSS,
+        'riskbitmask' => RISK_SPAM,
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

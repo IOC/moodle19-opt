@@ -1,6 +1,6 @@
 <?php
 
-    include($CFG->dirroot . '/mod/lightboxgallery/lib.php');
+    require_once($CFG->dirroot . '/mod/lightboxgallery/lib.php');
 
     function lightboxgallery_backup_mods($bf, $preferences) {
         $status = true;

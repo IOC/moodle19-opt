@@ -1,4 +1,4 @@
-<?php // $Id: print.php,v 1.11.2.4 2008-06-20 13:36:43 mchurch Exp $
+<?php // $Id: print.php,v 1.11.2.4 2008/06/20 13:36:43 mchurch Exp $
 
     require_once("../../config.php");
     require_once($CFG->dirroot.'/mod/questionnaire/lib.php');

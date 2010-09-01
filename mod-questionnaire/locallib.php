@@ -1,4 +1,4 @@
-<?php // $Id: locallib.php,v 1.49.2.68 2010-03-24 12:47:07 mchurch Exp $
+<?php // $Id: locallib.php,v 1.49.2.70 2010/08/15 14:08:55 joseph_rezeau Exp $
 
 /**
  * This library replaces the phpESP application with Moodle specific code. It will eventually
@@ -1111,8 +1111,12 @@ class questionnaire {
                 break;
 
             case 8: // Rate
-                $num = 0;
-                $nbchoices = count($record->choices);
+            	$num = 0;
+                if ($record->precise != 2) {  //dev jr 9 JUL 2010
+            		$nbchoices = count($record->choices);
+                } else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified 
+                	$nbchoices = $record->length;
+                }
                 $na = get_string('notapplicable', 'questionnaire');
                 foreach ($record->choices as $cid => $choice) {
                     // in case we have named degrees on the Likert scale, count them to substract from nbchoices
@@ -2571,8 +2575,13 @@ class questionnaire {
             // get the response
             $response = $this->response_select_name($record->id, $choicecodes, $choicetext);
             $qid = $record->id;
-            //JR for better compabitility & readability with Excel
-            $submitted = date(get_string('strfdateformatcsv', 'questionnaire'), $record->submitted);
+            if ($isanonymous) {
+            	// JR :: do not save response date for anonymous respondents
+            	$submitted = '---';
+            } else {           	
+            	//JR for better compabitility & readability with Excel
+            	$submitted = date(get_string('strfdateformatcsv', 'questionnaire'), $record->submitted);
+            }
             $institution = '';
             $department = '';
             $username  = $record->username;

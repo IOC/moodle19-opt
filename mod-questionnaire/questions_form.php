@@ -1,8 +1,8 @@
-<?php // $Id: questions_form.php,v 1.21.2.5 2009-11-18 22:46:49 mchurch Exp $
+<?php // $Id: questions_form.php,v 1.21.2.6 2010/08/17 21:55:11 joseph_rezeau Exp $
 /**
 * print the form to add or edit a questionnaire-instance
 *
-* @version $Id: questions_form.php,v 1.21.2.5 2009-11-18 22:46:49 mchurch Exp $
+* @version $Id: questions_form.php,v 1.21.2.6 2010/08/17 21:55:11 joseph_rezeau Exp $
 * @author Mike Churchward
 * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
 * @package questionnaire
@@ -199,12 +199,13 @@ class questionnaire_questions_form extends moodleform {
             ${$quesgroup}[] =& $mform->createElement('static', 'qreq_'.$question->id, '', '<div class="qreq">'.$qreq.'</div>');
 
             $qname = $question->name;
-            ${$quesgroup}[] =& $mform->createElement('static', 'qname_'.$question->id, '', '<div class="qname">'.$qname.'</div>');
-
+            ${$quesgroup}[] =& $mform->createElement('static', 'qname_'.$question->id, '', '<div class="qname">'.$qname.'</div><br />');
+            ${$quesgroup}[] =& $mform->createElement('static', 'qcontent_'.$question->id, '', '<div class="qname">'.$content.'</div><br /><hr />');
+            
             $mform->addGroup($$quesgroup, 'questgroup', '', '', false);
 
-            $mform->addElement('static', 'qcontent_'.$question->id, '', '<div class="qcontent">'.$content.'</div>');
-
+            //$mform->addElement('static', 'qcontent_'.$question->id, '', '<div style=>'.$content.'</div>');
+			
             $pos++;
         }
 

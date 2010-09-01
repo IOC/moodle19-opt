@@ -1,4 +1,4 @@
-<?php  // $Id: lib.php,v 1.20.2.12 2009-11-23 20:14:49 mchurch Exp $
+<?php  // $Id: lib.php,v 1.20.2.12 2009/11/23 20:14:49 mchurch Exp $
 
 require_once('locallib.php');
 

@@ -1,4 +1,4 @@
-<?php  // $Id: questions.php,v 1.15.2.2 2008-06-20 13:36:45 mchurch Exp $
+<?php  // $Id: questions.php,v 1.15.2.3 2010/08/03 20:30:46 joseph_rezeau Exp $
 /// This page prints a particular instance of questionnaire
 
     require_once("../../config.php");
@@ -262,8 +262,8 @@
                     if ($nbnameddegrees && $nbnameddegrees != $qformdata->length) {
                         $qformdata->length = $nbnameddegrees;
                     }
-                    // sanity check for "no duplicate choices""
-                    if ($qformdata->precise == 2 && $nbvalues != $qformdata->length) {
+                    // sanity check for "no duplicate choices"" //dev jr 9 JUL 2010
+                    if ($qformdata->precise == 2 && ($qformdata->length > $nbvalues || !$qformdata->length)) {
                         $qformdata->length = $nbvalues;
                     }
                 }  elseif ($qformdata->type_id == QUESCHECK) {

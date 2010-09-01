@@ -1,4 +1,4 @@
-<?php // $Id: questiontypes.class.php,v 1.31.2.49 2010-03-18 17:11:02 joseph_rezeau Exp $
+<?php // $Id: questiontypes.class.php,v 1.31.2.50 2010/08/03 20:30:46 joseph_rezeau Exp $
 
 /**
  * This file contains the parent class for questionnaire question types.
@@ -1195,7 +1195,12 @@ class questionnaire_question {
         echo '</tr>';
 
         $num = 0;
-        $nbchoices = count($this->choices) - $nameddegrees;
+		if ($this->precise != 2) {  //dev jr 9 JUL 2010
+        	$nbchoices = count($this->choices) - $nameddegrees;
+		} else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified 
+			$nbchoices = $this->length;
+		}
+        
         foreach ($this->choices as $cid => $choice) {
             $str = 'q'."{$this->id}_$cid";
             for ($j = 0; $j < $this->length; $j++) {

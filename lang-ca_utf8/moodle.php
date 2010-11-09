@@ -541,16 +541,15 @@ $a->admin';
 $string['emailpasswordchangeinfosubject'] = '$a: informació de canvi de contrasenya';
 $string['emailpasswordconfirmation'] = '$a->firstname,
 
-Algú (probablement vós) ha demanat una nova contrasenya 
-per al vostre compte en \'$a->sitename\'.
+Heu demanat una nova contrasenya al {$a->sitename}.
 
 Per a confirmar aquesta sol·licitud i rebre la nova contrasenya per correu electrònic, aneu a l\'adreça web següent:
 
   $a->link
 
-En la majoria de programes de correu, la línia de dalt s\'hauria de veure com un enllaç blau on podeu fer clic. Si això no funciona, copieu l\'adreça i enganxeu-la al camp d\'adreces de la finestra del vostre nvegador web.
+En la majoria de programes de correu, la línia de dalt s\'hauria de veure com un enllaç blau on podeu fer clic. Si això no funciona, copieu l\'adreça i enganxeu-la al camp d\'adreces de la finestra del vostre navegador web.
 
-Si necessiteu ajuda, si us plau contacteu amb l\'administrador del lloc:
+Un cop feta la confirmació, rebreu una nova contrasenya al vostre correu. Si necessiteu ajuda, si us plau contacteu amb l\'adreça ioc@ioc.cat
 
 $a->admin';
 $string['emailpasswordconfirmationsubject'] = '$a: confirmació de canvi de contrasenya';
@@ -992,19 +991,19 @@ $string['newpassword'] = 'Nova contrasenya';
 $string['newpasswordfromlost'] = '<strong>AVÍS:</strong> se us ha enviat la vostra <strong>contrasenya actual</strong> en el <strong>segon</strong> dels dos correus que rebreu com a part del procés de recuperació de la contrasenya. Assegureu-vos que heu rebut la contrasenya nova abans de continuar.';
 $string['newpasswordtext'] = '$a->firstname,
 
-S\'ha anul·lat la contrasenya del vostre compte en \'$a->sitename\' i se us n\'ha assignat una de nova provisionalment.
+S\'ha anul·lat la contrasenya del vostre compte al $a->sitename i se us n\'ha assignat una de nova.
 
-Les dades per entrar-hi ara són:
+La vostra informació d\'entrada és ara:
 nom d\'usuari: $a->username
 contrasenya: $a->newpassword
+(per qüestions de seguretat, us recomanem que canvieu aquesta contrasenya la primera vegada que entreu)
 
-Si us plau aneu a aquesta pàgina per canvieu la vostra contrasenya:
-$a->link
+Per començar a utilitzar el Campus IOC, entreu a $a->link
 
-En la majoria de programes de correu, l\'adreça s\'hauria de presentar com un enllaç blau on podeu fer clic. Si això no funciona, copieu i enganxeu l\'adreça al camp d\'adreces
-de la finestra del vostre navegador web.
+En la majoria de programes de correu aquesta adreça hauria d\'aparèixer com un enllaç blau on podeu fer clic. Si això no funciona, copieu l\'adreça i enganxeu-la en el camp d\'adreces de la finestra del vostre navegador web.
 
-Salutacions de l\'administrador de \'$a->sitename\',
+Salutacions,
+
 $a->signoff';
 $string['newpicture'] = 'Nova imatge';
 $string['newsitem'] = 'Notícia';
@@ -1014,18 +1013,16 @@ $string['newuser'] = 'Nou usuari';
 $string['newusernewpasswordsubj'] = 'Nou compte d\'usuari';
 $string['newusernewpasswordtext'] = '$a->firstname,
 
-Se us ha creat un nou compte d\'usuari en $a->sitename i se us ha assignat una nova contrasenya temporal.
+Se us ha creat un nou compte d\'usuari al $a->sitename i se us ha assignat una nova contrasenya.
 
 La vostra informació d\'entrada és ara:
 usuari: $a->username
 contrasenya: $a->newpassword
-(en entrar-hi per primera vegada haureu de canviar aquesta contrasenya)
+(per qüestions de seguretat, us recomanem que canvieu aquesta contrasenya la primera vegada que entreu)
 
-Per començar a utilitzar $a->sitename, entreu en $a->link
+Per començar a utilitzar el $a->sitename, entreu a $a->link
 
-En la majoria de programes de correu aquesta adreça hauria d\'aparèixer com un enllaç blau on podeu fer clic. Si això no funciona, copieu l\'adreça i enganxeu-la en el camp d\'ubicació al capdamunt de la finestra del navegador.
-
-$a->sitename,
+En la majoria de programes de correu aquesta adreça hauria d\'aparèixer com un enllaç blau on podeu fer clic. Si això no funciona, copieu l\'adreça i enganxeu-la en el camp d\'adreces de la finestra del vostre navegador web.
 
 $a->signoff';
 $string['newusers'] = 'Nous usuaris';

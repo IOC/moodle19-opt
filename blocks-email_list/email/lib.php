@@ -1886,7 +1886,7 @@ function email_get_unread_mails($userid) {
 
 			$sql = "SELECT s.userid, s.mailid, s.course
 		                            FROM {$CFG->prefix}block_email_list_mail m
-		                   LEFT JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid
+		                   JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid
 		                   LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
 
 
@@ -1935,7 +1935,7 @@ function email_count_unreaded_mails($userid, $courseid, $folderid=NULL) {
 
 			$sql = "SELECT count(*)
 		                            FROM {$CFG->prefix}block_email_list_mail m
-		                   LEFT JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid
+		                   JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid
 		                   LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
 
 
@@ -1963,7 +1963,7 @@ function email_count_unreaded_mails($userid, $courseid, $folderid=NULL) {
 			// For apply order, I've writting an sql clause
 			$sql = "SELECT count(*)
 		                            FROM {$CFG->prefix}block_email_list_mail m
-		                   LEFT JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid
+		                   JOIN {$CFG->prefix}block_email_list_send s ON m.id = s.mailid
 		                   LEFT JOIN {$CFG->prefix}block_email_list_foldermail fm ON m.id = fm.mailid ";
 
 

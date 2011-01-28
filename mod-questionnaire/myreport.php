@@ -1,4 +1,4 @@
-<?php  // $Id: myreport.php,v 1.4.2.5 2009/07/24 12:30:35 mchurch Exp $
+<?php  // $Id: myreport.php,v 1.4.2.7 2011/01/18 22:01:45 joseph_rezeau Exp $
 
 /// This page shows results of a questionnaire to a student.
 
@@ -31,6 +31,13 @@
 
     require_login($course->id);
 
+    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    /// Should never happen, unless called directly by a snoop...
+    if ( !has_capability('mod/questionnaire:readownresponses',$context) 
+        || $userid != $USER->id) {
+        error('Permission denied');
+    }
+    
     $questionnaire = new questionnaire(0, $questionnaire, $course, $cm);
 
 /// Tab setup:

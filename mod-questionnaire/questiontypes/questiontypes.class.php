@@ -1,4 +1,4 @@
-<?php // $Id: questiontypes.class.php,v 1.31.2.50 2010/08/03 20:30:46 joseph_rezeau Exp $
+<?php // $Id: questiontypes.class.php,v 1.31.2.54 2011/01/03 17:48:36 joseph_rezeau Exp $
 
 /**
  * This file contains the parent class for questionnaire question types.
@@ -379,7 +379,7 @@ class questionnaire_question {
             }
             return $resid;
         } else { // THIS SHOULD NEVER HAPPEN
-            $r = strtolower(clean_param($formdata->{'q'.$this->id}, PARAM_CLEAN));
+            $r = clean_param($formdata->{'q'.$this->id}, PARAM_CLEAN);
             if($formdata->{'q'.$this->id} == get_string('notapplicable', 'questionnaire')) {
                 $rank = -1;
             } else {
@@ -534,15 +534,34 @@ class questionnaire_question {
                     $this->counts[$row->content]->nbna = $nbna;
                 }
             }
-
-            $sql = "SELECT c.id, c.content, a.average, a.num
-                   FROM {$CFG->prefix}questionnaire_quest_choice c 
-                   INNER JOIN 
-                        (SELECT c2.id, AVG(a2.rank+1) AS average, COUNT(a2.response_id) AS num 
-                         FROM {$CFG->prefix}questionnaire_quest_choice c2, {$CFG->prefix}questionnaire_{$this->response_table} a2 
-                         WHERE c2.question_id = {$this->id} AND a2.question_id = {$this->id} AND a2.choice_id = c2.id AND a2.rank >= 0{$ridstr}
-                         GROUP BY c2.id) a ON a.id = c.id";
-            return get_records_sql($sql);
+            $isrestricted = ($this->length < count($this->choices)) && $this->precise == 2;            
+            // usual case
+            if (!$isrestricted) {
+                $sql = 'SELECT C.content, AVG(A.rank+1) AS average, COUNT(A.response_id) AS num '.
+                    'FROM '.$CFG->prefix.'questionnaire_quest_choice C, '.
+                        $CFG->prefix.'questionnaire_'.$this->response_table.' A '.
+                    'WHERE C.question_id = '.$this->id.' AND A.question_id = '.$this->id.' AND '.
+                        'A.choice_id = C.id AND A.rank >= 0'.$ridstr.' '.
+                    'GROUP BY C.id';
+                return get_records_sql($sql);
+            // case where scaleitems is less than possible choices
+            } else {
+                $sql = 'SELECT C.content, SUM(A.rank+1) AS sum, COUNT(A.response_id) AS num '.
+                       'FROM '.$CFG->prefix.'questionnaire_quest_choice C, '.
+                               $CFG->prefix.'questionnaire_'.$this->response_table.' A '.
+                       'WHERE C.question_id = '.$this->id.' AND A.question_id = '.$this->id.' AND '.
+                             'A.choice_id = C.id AND A.rank >= 0'.$ridstr.' '.
+                       'GROUP BY C.id';
+                $results = get_records_sql($sql);
+                // formula to calculate the best ranking order
+                $nbresponses = count($rids);
+                if ($results) {
+	                foreach ($results as $result) {
+	                    $result->average = ($result->sum + ($nbresponses - $result->num) * ($this->length + 1)) / $nbresponses;
+	                }
+                }
+                return $results;
+            }
         } else {
             $sql = 'SELECT A.rank, COUNT(A.response_id) AS num '.
                    'FROM '.$CFG->prefix.'questionnaire_'.$this->response_table.' A '.
@@ -619,17 +638,17 @@ class questionnaire_question {
         } else if (is_int($rids)) {
             $prtotal = 0;
         }
-
         if ($rows = $this->get_response_text_results($rids)) {
-        /// Count identical answers (case insensitive)
+        	/// Count identical answers (numeric questions only)
         	foreach ($rows as $row) {
+					if(!empty($row->response)) {
                 $this->text = $row->response;
-                if(!empty($this->text)) {
-                	$textidx = strtolower(clean_text($this->text));
+                	$textidx = clean_text($this->text);
                     $this->counts[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
+	                    $this->userid[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 }
             }
-            $isnumeric = $this->type_id == 10;
+            $isnumeric = $this->type_id == 10;   
             if ($isnumeric) {
                 $this->mkreslistnumeric(count($rids), $this->precise);
             } else {
@@ -653,7 +672,7 @@ class questionnaire_question {
                 if(!empty($this->text)) {
                     $dateparts = split('-', $this->text);
                     $this->text = gmmktime(0, 0, 0, $dateparts[1], $dateparts[2], $dateparts[0]); // Unix timestamp
-                    $textidx = strtolower(clean_text($this->text));
+                    $textidx = clean_text($this->text);
                     $this->counts[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 }
             }
@@ -677,12 +696,12 @@ class questionnaire_question {
                     $content = preg_replace(array('/^!other=/', '/^!other/'),
                             array('', get_string('other', 'questionnaire')), $ccontent);
                     $content .= ' ' . clean_text($answer);
-                    $textidx = strtolower($content);
+                    $textidx = $content;
                     $this->counts[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 } else {
                     $contents = choice_values($row->content);
                     $this->choice = $contents->text.$contents->image;
-                    $textidx = strtolower($this->choice);
+                    $textidx = $this->choice;
                     $this->counts[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 }
             }
@@ -706,12 +725,12 @@ class questionnaire_question {
                     $content = preg_replace(array('/^!other=/', '/^!other/'),
                             array('', get_string('other', 'questionnaire')), $ccontent);
                     $content .= ' ' . clean_text($answer);
-                    $textidx = strtolower($content);
+                    $textidx = $content;
                     $this->counts[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 } else {
                     $contents = choice_values($row->content);
                     $this->choice = $contents->text.$contents->image;
-                    $textidx = strtolower($this->choice);
+                    $textidx = $this->choice;
                     $this->counts[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 }
             }
@@ -727,12 +746,16 @@ class questionnaire_question {
         } else if (is_int($rids)) {
             $prtotal = 0;
         }
-
         if ($rows = $this->get_response_rank_results($rids, $guicross=false, $sort)) {
-            if($this->type_id == 8) { //Rank
-                foreach ($rows as $row) {
-                    $ccontent = $row->content;
-                    $avg = $row->average;
+        	if($this->type_id == 8) { //Rank
+                foreach ($this->counts as $key => $value) {
+                    $ccontent = $key;
+                    if (array_key_exists($ccontent, $rows)) {
+	                    $avg = $rows[$ccontent]->average;
+	                    $this->counts[$ccontent]->num = $rows[$ccontent]->num;
+                    } else {
+                    	$avg = 0;
+                    }
                     $this->counts[$ccontent]->avg = $avg;
                 }
                 $this->mkresavg(count($rids), $this->precise, $prtotal, $this->length, $sort);
@@ -1651,7 +1674,7 @@ class questionnaire_question {
         $bg='';
         $image_url = $CFG->wwwroot.'/mod/questionnaire/images/';
         $currhbar = $this->theme_bars_url();
-        $strtotal = get_string('total', 'questionnaire');
+        $strtotal = get_string('total', 'questionnaire'); //devjr
         $table = new Object();
         $table->size = array();
         $table->align = array();
@@ -1667,7 +1690,7 @@ class questionnaire_question {
         $table->align = array_merge($table->align, array('left', 'left', 'right'));
         $table->wrap = array_merge($table->wrap, array('', 'nowrap', ''));
         $table->head = array_merge($table->head, array(get_string('response', 'questionnaire'),
-                       get_string('average', 'questionnaire'), get_string('total', 'questionnaire')));
+                       get_string('average', 'questionnaire'), get_string('total', 'questionnaire'))); //devjr
 
         if (!empty($this->counts) && is_array($this->counts)) {
             $pos = 0;
@@ -1679,8 +1702,13 @@ class questionnaire_question {
             	arsort($this->counts); // DEV JR
             	break;
             }
+			$numresponses = 0; //devjr
+			foreach ($this->counts as $key => $value) {
+				$numresponses = $numresponses + $value;  
+			}
+			reset ($this->counts);
             while(list($content,$num) = each($this->counts)) {
-                if($num>0) { $percent = $num/$total*100.0; }
+				if($num>0) { $percent = $num/$numresponses*100.0; } //devjr
                 else { $percent = 0; }
                 if($percent > 100) {
                     $percent = 100;
@@ -1836,9 +1864,11 @@ class questionnaire_question {
         $isna = $this->precise == 1;
         $isnahead = '';
         $osgood = false;
+        $nbchoices = count ($this->counts);
         if ($precision == 3) { // Osgood's semantic differential
             $osgood = true;
         }
+        $isrestricted = ($length < $nbchoices) && $precision == 2;
 
         if ($isna) {
             $isnahead = get_string('notapplicable', 'questionnaire').'<br />(#)';
@@ -1868,6 +1898,8 @@ class questionnaire_question {
         if (!$length) {
             $length = 5;
         }
+        // add an extra column to accomodate lower ranks in this case
+        $length += $isrestricted;
         $nacol = 0;
         $width = 100 / $length ;
         $n = array();
@@ -1895,6 +1927,9 @@ class questionnaire_question {
             } else {
                 $str = $i + 1;
             }
+            if ($isrestricted && $i == $length - 1) {
+                $str = "...";
+            }
             $out .= '<td align = "center" style="width:'.$width.'%" >'.$str.'</td>';
         }
         $out .= '</tr></table>';
@@ -1907,6 +1942,8 @@ class questionnaire_question {
 		            uasort($this->counts, 'sortavgdesc');
 		            break;
 		    }
+        reset ($this->counts);
+        
 		    if (!empty($this->counts) && is_array($this->counts)) {
             while(list($content) = each($this->counts)) {
 
@@ -1942,7 +1979,11 @@ class questionnaire_question {
                         if ($osgood) {
                             $table->data[] = array('<div align="right">'.format_text($content, FORMAT_HTML).'</div>', $out, '<div align="left"><strong>'.format_text($contentright, FORMAT_HTML).'</strong></div>', sprintf('%.1f', $avg));
                         } else {
+                            if($avg) {
                             $table->data[] = array(format_text($content, FORMAT_HTML), $out, sprintf('%.1f', $avg));
+                            } else {
+                                $table->data[] = array(format_text($content, FORMAT_HTML), $out, get_string('notapplicable', 'questionnaire'));
+                            }
                         }
                     } else {
                         if ($avg) {

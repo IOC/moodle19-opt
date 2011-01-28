@@ -1,4 +1,4 @@
-<?php  // $Id: report.php,v 1.14.2.15 2009/12/17 17:17:06 joseph_rezeau Exp $
+<?php  // $Id: report.php,v 1.14.2.18 2011/01/18 22:02:58 joseph_rezeau Exp $
 
 /// This page prints a particular instance of questionnaire
     global $SESSION, $CFG;
@@ -45,12 +45,17 @@
     }
 
     require_login($course->id);
-
-    $questionnaire = new questionnaire(0, $questionnaire, $course, $cm);
+    
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    
+    /// Should never happen, unless called directly by a snoop...
+    if ( !has_capability('mod/questionnaire:readallresponseanytime',$context) ) {
+        error('Permission denied');
+    }
+    
+    $questionnaire = new questionnaire(0, $questionnaire, $course, $cm);
     $questionnaire->canviewallgroups = has_capability('moodle/site:accessallgroups', $context, NULL, false);
     $sid = $questionnaire->survey->id;
-
 /// Tab setup:
     $SESSION->questionnaire->current_tab = 'allreport';
 
@@ -256,6 +261,12 @@
         break;
 
     case 'delallresp': // delete all responses
+    	// TODO
+	    /// Should never happen, unless called directly by a snoop...
+	    if ( !has_capability('mod/questionnaire:deleteresponses',$context) ) {
+	        error('Permission denied');
+	    }
+    	
         $select = 'survey_id='.$sid.' AND complete = \'y\'';
         if (!($responses = get_records_select('questionnaire_response', $select, 'id', 'id'))) {
             return;
@@ -448,7 +459,12 @@
         break;
 
     case 'dwnpg': // Download page options
-        $extranav = array();
+        /// Should never happen, unless called directly by a snoop...
+        if ( !has_capability('mod/questionnaire:downloadresponses',$context,$userid) ) {
+            error('Permission denied');
+        }
+    	
+    	$extranav = array();
         $extranav[] = array('name' => get_string('questionnairereport', 'questionnaire'), 'link' => '', 'type' => 'activity');
         $extranav[] = array('name' => get_string('downloadtext'), 'link' => "", 'type' => 'activity');
         $navigation = build_navigation($extranav, $questionnaire->cm);

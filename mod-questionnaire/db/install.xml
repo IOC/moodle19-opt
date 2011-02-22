@@ -91,6 +91,9 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="question_id" UNIQUE="false" FIELDS="question_id"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="questionnaire_question_type" COMMENT="questionnaire_question_type table retrofitted from MySQL" PREVIOUS="questionnaire_quest_choice" NEXT="questionnaire_response">
       <FIELDS>

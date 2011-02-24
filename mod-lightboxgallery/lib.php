@@ -61,7 +61,7 @@ function lightboxgallery_delete_instance($id) {
 }
 
 function lightboxgallery_user_outline($course, $user, $mod, $resource) {
-    if ($logs = get_records_select('log', "userid='$user->id' AND module='lightboxgallery' AND action='view' AND info='$resource->id'", 'time ASC')) {
+    if ($logs = get_records_select('log', "course='$course->id' AND userid='$user->id' AND module='lightboxgallery' AND action='view' AND info='$resource->id'", 'time ASC')) {
         $numviews = count($logs);
         $lastlog = array_pop($logs);
 

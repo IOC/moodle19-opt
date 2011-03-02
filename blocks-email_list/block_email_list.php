@@ -338,33 +338,21 @@ class block_email_list extends block_list {
         	return true; // Skip
         }
 
-        // Get all email references.
-        if ( $mailids = get_records('block_email_list_mail', 'course', $courseid) ) {
-        	foreach( $mailids as $mailid ) {
-        		if ( ! delete_records('block_email_list_foldermail', 'mailid', $mailid) ) {
-					print_error('faildroprecordsfoldermail', 'block_email_list');
-		    	}
-        	}
-        }
-
         // Drop all mails
-        if ( ! delete_records('block_email_list_mail', 'course', $courseid) ) {
-			print_error('faildroprecordsmail', 'block_email_list');
-    	}
 
-    	if ( $folders = get_records('block_email_list_folder', 'course', $courseid) ) {
-			foreach ( $folders as $folder ) {
-    			// If user have defined who has associated folders-course, then delete all folders to this course.
-				if ( email_have_asociated_folders($folder->userid) ) {
-					if ( ! email_removefolder($folder->id) ) {
-						print_error('faildroprecordsfolder', 'block_email_list');
-					}
-				}
-			}
-		}
+        execute_sql("DELETE s.* FROM {$CFG->prefix}block_email_list_send s " .
+                    "JOIN {$CFG->prefix}block_email_list_mail m ON s.mailid = m.id " .
+                    "WHERE m.course = $courseid", false);
+        execute_sql("DELETE fm.* FROM {$CFG->prefix}block_email_list_foldermail fm " .
+                    "JOIN {$CFG->prefix}block_email_list_mail m ON fm.mailid = m.id " .
+                    "WHERE m.course = $courseid", false);
+        delete_records('block_email_list_mail', 'course', $courseid);
+        execute_sql("DELETE fi.* FROM {$CFG->prefix}block_email_list_filter fi " .
+                    "JOIN {$CFG->prefix}block_email_list_folder fo ON fi.folderid = fo.id " .
+                    "WHERE fo.course = $courseid", false);
+        delete_records('block_email_list_folder', 'course', $courseid);
 
-		return true;
-
+        return true;
     }
 }
 ?>

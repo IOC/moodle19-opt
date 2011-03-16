@@ -174,3 +174,8 @@ header("Content-type: text/css");
 	margin-left: auto;
 	margin-right: auto;
 }
+
+#mod-assignment-submissions #optiontable {
+    margin-left: auto;
+    text-align: right;
+}

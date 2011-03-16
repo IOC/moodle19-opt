@@ -112,7 +112,7 @@ updateTotal();
 		");
 		// Buttons for submit, reset and cancel
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('saveanddisplay','assignment_peerreview'));
-        $buttonarray[] = &$mform->createElement('reset', 'resetbutton', get_string('revert'));
+        $buttonarray[] = &$mform->createElement('reset', 'resetbutton', get_string('reset'));
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');

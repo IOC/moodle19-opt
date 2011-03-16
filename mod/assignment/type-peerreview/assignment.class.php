@@ -1020,8 +1020,8 @@ class assignment_peerreview extends assignment_base {
 
         /// Mini form for setting user preference
         echo '<div style="margin:5px 10px;">';
-        echo '<table id="optiontable" align="right">';
-        echo '<tr><td colspan="2" align="right">';
+        echo '<table id="optiontable">';
+        echo '<tr><td colspan="2">';
         echo '<form id="options" action="type/peerreview/'.self::MASS_MARK_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&sesskey='.sesskey().'" method="post">';
 
         echo '<input type="submit" value="'.get_string('massmark','assignment_peerreview').'" />';

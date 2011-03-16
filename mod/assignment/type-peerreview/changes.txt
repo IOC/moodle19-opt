@@ -1,0 +1,21 @@
+- Fixed mark total advisor in criteria_form.php for IE7 and earlier
+- Added some help files
+- Added file icon to submissions page
+- Allowed resubmission
+- Allowed online-text submission
+- Fixed output to apply formatText() consistently
+- Simplified buttons on teacher review page
+- Fixed quotes doubling in comments
+- Fixed double review scores
+- Added backup and restore
+- Fixed modified date changes
+- Fixed deleting of criteria
+- Provided review metrics
+- Added analysis tab
+- Email not sent until mark set
+- Added more help files
+- Showed submitted file and details to early submitters
+- Showed description at download stage
+- Added Spanish translation
+- Catalan translation
+- Added feedback attention stats

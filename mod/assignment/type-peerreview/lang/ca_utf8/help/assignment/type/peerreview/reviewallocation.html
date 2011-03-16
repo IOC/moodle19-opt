@@ -1,0 +1,17 @@
+﻿<h1>Com s'assignen les revisions</h1>
+<p>Les revisions s'assignen automàticament pel sistema utilitzant un mètode d'assignació inversa.</p>
+<?php
+    $image = $CFG->wwwroot.'/mod/assignment/type/peerreview/lang/en_utf8/help/assignment/type/peerreview/images/SingleDeadline.gif';
+    echo '<img src="'.$image.'" style="float:left;margin:5px 5px 5px 0;width:50%;max-width:344px" />';
+?>
+<p>Les primeres trameses s'emmagatzemen i es diu als estudiants que les han fetes que rebran un missatge de correu quan puguin començar la revisió.</p>
+<p>Quan el nombre de trameses arriba a la quantitat mínima (al voltant de 4 o 5) s'assignen dues revisions als primers estudiants que hagin lliurat treballs.</p>
+<p>Els estudiants que fan les trameses següents revisen les d'estudiants que les han fet abans que ells, però no immediatament abans d'ells. D'aquesta manera els estudiants poden començar a revisar tan aviat com acabin de fer la seva tramesa..</p>
+<p>La cadena de relacions de revisió pot continuar indefinidament després d'aquest punt en el temps.</p>
+<p>Algunes dades sobre el nombre de revisions que els estudiants faran i rebran.</p>
+<ul>
+    <li>Tots els estudiants han de fer dues revisions, normalment amb l'incentiu de punts afegits a la seva qualificació.</li>
+    <li>La majoria dels estudiants rep dues revisions dels parells.</li>
+    <li>Els estudiants que primer envien la tramesa poden rebre més de 2 revisions.</li>
+    <li>Els darrers estudiants que envien la tramesa són al final de la cadena de revisió i poden rebre una o cap revisió, per la qual cosa hauran de ser revisat pel professorat.</li>
+</ul>

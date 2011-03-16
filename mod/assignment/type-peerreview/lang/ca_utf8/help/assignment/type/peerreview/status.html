@@ -1,0 +1,24 @@
+﻿<style type="text/css">
+@import url("<?php echo $CFG->wwwroot.'/mod/assignment/type/peerreview/styles.php'; ?>");
+</style>
+<h1>Estat</h1>
+
+<p>L'estat de la tramesa indica al professorat si cal fer alguna moderació.</p>
+<p>L'estat pot prendre alguna d'aquestes opcions:</p>
+
+<table cellpadding="5" cellspacing="0" style="border:1px solid black">
+	<tr><td><span class="errorStatus">&lt;2 Revisions</span><br />
+	Aquests estudiants han rebut menys de dues revisions a la seva tramesa. Si és poc probable que rebin més revisions en el futur, el professorat haurà de fer una revisió de moderació.</td>
+	<td rowspan="4">Cal moderació</td></tr>
+	<tr><td><span class="errorStatus">En conflicte</span><br />
+	S'han fet 2 o més revisions però no coincideixen en un o més criteris.</td></tr>
+	<tr><td><span class="errorStatus">Marcat</span><br />
+	L'estudiant que va fer la tramesa no està d'acord amb una de les revisons que se li han fet i creu que el professorat ha d'intervenir.</td></tr>
+	<tr><td><span class="errorStatus">En conflicte, Marcat</span><br />
+	La combinació dels dos anteriors.</td></tr>
+	<tr><td><span class="goodStatus">Consens</span><br />
+	S'han fet dues o més revisions i totes coincideixen en marcar els mateixos criteris.</td>
+	<td rowspan="2">No cal moderació</td></tr>
+	<tr><td><span class="goodStatus">Reemplaçat</span><br />
+	El professorat ha fet una revisió de moderació que reemplaça les puntuacions de les altres moderacions.</td></tr>
+</table>

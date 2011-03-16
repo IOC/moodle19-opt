@@ -1,0 +1,27 @@
+Add self-reflection phase
+
+Consider assignments in groups
+
+Output tidy HTML
+
+Add better code comments
+
+Improve logging
+
+Factorise code
+
+Follow compliance guidelines
+
+Prepare for Moodle 2.0
+
+Allow "accidental" teacher reviews to be deleted.
+
+Allow table ordering other than submission order.
+
+---
+
+Ideas
+
+Value student's reviews according to their performance on the current task and possibly past performance and review accuracy.
+
+Use good students to do (additional) moderation reviews instead of instructors.

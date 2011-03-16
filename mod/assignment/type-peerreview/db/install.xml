@@ -24,9 +24,13 @@
         <FIELD NAME="timesviewedbyreviewee" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="timelastviewedbyreviewee"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="assignment"/>
-        <KEY NAME="assignment" TYPE="foreign" FIELDS="assignment" REFTABLE="assignment" REFFIELDS="id" PREVIOUS="primary"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="assignment-reviewer" UNIQUE="false" FIELDS="assignment, reviewer" NEXT="assignment-reviewee"/>
+        <INDEX NAME="assignment-reviewee" UNIQUE="false" FIELDS="assignment, reviewee" PREVIOUS="assignment-reviewer" NEXT="assignment-complete-teacherreview"/>
+        <INDEX NAME="assignment-complete-teacherreview" UNIQUE="false" FIELDS="assignment, complete, teacherreview" PREVIOUS="assignment-reviewee"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="assignment_review_criterion" COMMENT="The value of a criterion in a review" PREVIOUS="assignment_review" NEXT="assignment_criteria">
       <FIELDS>

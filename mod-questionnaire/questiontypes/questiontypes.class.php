@@ -1,4 +1,4 @@
-<?php // $Id: questiontypes.class.php,v 1.31.2.54 2011/01/03 17:48:36 joseph_rezeau Exp $
+<?php // $Id: questiontypes.class.php,v 1.31.2.55 2011/02/07 20:03:00 mchurch Exp $
 
 /**
  * This file contains the parent class for questionnaire question types.
@@ -534,31 +534,40 @@ class questionnaire_question {
                     $this->counts[$row->content]->nbna = $nbna;
                 }
             }
-            $isrestricted = ($this->length < count($this->choices)) && $this->precise == 2;            
+            $isrestricted = ($this->length < count($this->choices)) && $this->precise == 2;
             // usual case
             if (!$isrestricted) {
-                $sql = 'SELECT C.content, AVG(A.rank+1) AS average, COUNT(A.response_id) AS num '.
-                    'FROM '.$CFG->prefix.'questionnaire_quest_choice C, '.
-                        $CFG->prefix.'questionnaire_'.$this->response_table.' A '.
-                    'WHERE C.question_id = '.$this->id.' AND A.question_id = '.$this->id.' AND '.
-                        'A.choice_id = C.id AND A.rank >= 0'.$ridstr.' '.
-                    'GROUP BY C.id';
-                return get_records_sql($sql);
+                $sql = "SELECT c.id, c.content, a.average, a.num
+                        FROM {$CFG->prefix}questionnaire_quest_choice c
+                        INNER JOIN
+                             (SELECT c2.id, AVG(a2.rank+1) AS average, COUNT(a2.response_id) AS num
+                              FROM {$CFG->prefix}questionnaire_quest_choice c2, {$CFG->prefix}questionnaire_{$this->response_table} a2
+                              WHERE c2.question_id = {$this->id} AND a2.question_id = {$this->id} AND a2.choice_id = c2.id AND a2.rank >= 0{$ridstr}
+                              GROUP BY c2.id) a ON a.id = c.id";
+                $results = get_records_sql($sql);
+                /// Reindex by 'content'. Can't do this from the query as it won't work with MS-SQL.
+                foreach ($results as $key => $result) {
+                    $results[$result->content] = $result;
+                    unset($results[$key]);
+                }
+                return $results;
+
             // case where scaleitems is less than possible choices
             } else {
-                $sql = 'SELECT C.content, SUM(A.rank+1) AS sum, COUNT(A.response_id) AS num '.
-                       'FROM '.$CFG->prefix.'questionnaire_quest_choice C, '.
-                               $CFG->prefix.'questionnaire_'.$this->response_table.' A '.
-                       'WHERE C.question_id = '.$this->id.' AND A.question_id = '.$this->id.' AND '.
-                             'A.choice_id = C.id AND A.rank >= 0'.$ridstr.' '.
-                       'GROUP BY C.id';
+                $sql = "SELECT c.id, c.content, a.sum, a.num
+                        FROM {$CFG->prefix}questionnaire_quest_choice c
+                        INNER JOIN
+                             (SELECT c2.id, SUM(a2.rank+1) AS sum, COUNT(a2.response_id) AS num
+                              FROM {$CFG->prefix}questionnaire_quest_choice c2, {$CFG->prefix}questionnaire_{$this->response_table} a2
+                              WHERE c2.question_id = {$this->id} AND a2.question_id = {$this->id} AND a2.choice_id = c2.id AND a2.rank >= 0{$ridstr}
+                              GROUP BY c2.id) a ON a.id = c.id";
                 $results = get_records_sql($sql);
                 // formula to calculate the best ranking order
                 $nbresponses = count($rids);
-                if ($results) {
-	                foreach ($results as $result) {
-	                    $result->average = ($result->sum + ($nbresponses - $result->num) * ($this->length + 1)) / $nbresponses;
-	                }
+                foreach ($results as $key => $result) {
+                    $result->average = ($result->sum + ($nbresponses - $result->num) * ($this->length + 1)) / $nbresponses;
+                    $results[$result->content] = $result;
+                    unset($results[$key]);
                 }
                 return $results;
             }
@@ -648,7 +657,7 @@ class questionnaire_question {
 	                    $this->userid[$textidx] = !empty($this->counts[$textidx]) ? ($this->counts[$textidx] + 1) : 1;
                 }
             }
-            $isnumeric = $this->type_id == 10;   
+            $isnumeric = $this->type_id == 10;
             if ($isnumeric) {
                 $this->mkreslistnumeric(count($rids), $this->precise);
             } else {
@@ -1220,10 +1229,10 @@ class questionnaire_question {
         $num = 0;
 		if ($this->precise != 2) {  //dev jr 9 JUL 2010
         	$nbchoices = count($this->choices) - $nameddegrees;
-		} else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified 
+		} else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified
 			$nbchoices = $this->length;
 		}
-        
+
         foreach ($this->choices as $cid => $choice) {
             $str = 'q'."{$this->id}_$cid";
             for ($j = 0; $j < $this->length; $j++) {
@@ -1354,7 +1363,7 @@ class questionnaire_question {
                 <tr>
                     <td class="qnInnerTd" valign="top">&nbsp;</td>
                     <td class="qnInner" style="height:35px">' .
-						format_text($this->content, FORMAT_HTML).' 
+						format_text($this->content, FORMAT_HTML).'
                     </td>
                 </tr>
             </table>
@@ -1704,7 +1713,7 @@ class questionnaire_question {
             }
 			$numresponses = 0; //devjr
 			foreach ($this->counts as $key => $value) {
-				$numresponses = $numresponses + $value;  
+				$numresponses = $numresponses + $value;
 			}
 			reset ($this->counts);
             while(list($content,$num) = each($this->counts)) {
@@ -1943,7 +1952,7 @@ class questionnaire_question {
 		            break;
 		    }
         reset ($this->counts);
-        
+
 		    if (!empty($this->counts) && is_array($this->counts)) {
             while(list($content) = each($this->counts)) {
 

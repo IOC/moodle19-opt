@@ -1,4 +1,4 @@
-<?php // $Id: locallib.php,v 1.49.2.70 2010/08/15 14:08:55 joseph_rezeau Exp $
+<?php // $Id: locallib.php,v 1.49.2.73 2011/02/10 13:19:11 mchurch Exp $
 
 /**
  * This library replaces the phpESP application with Moodle specific code. It will eventually
@@ -451,6 +451,60 @@ class questionnaire {
 
     function is_survey_owner() {
         return (!empty($this->survey->owner) && ($this->course->id == $this->survey->owner));
+    }
+
+    function can_view_response($rid) {
+        global $USER;
+
+        if (!empty($rid)) {
+            $response = get_record('questionnaire_response', 'id', $rid);
+
+            /// If the response was not found, can't view it.
+            if (empty($response)) {
+                return false;
+            }
+
+            /// If the response belongs to a different survey than this one, can't view it.
+            if ($response->survey_id != $this->survey->id) {
+                return false;
+            }
+
+            /// If you can view all responses always, then you can view it.
+            if ($this->capabilities->readallresponseanytime) {
+                return true;
+            }
+
+            /// If you are allowed to view this response for another user.
+            if ($this->capabilities->readallresponses &&
+                ($this->resp_view == $QUESTIONNAIRE_STUDENTVIEWRESPONSES_ALWAYS ||
+                 ($this->resp_view == $QUESTIONNAIRE_STUDENTVIEWRESPONSES_WHENCLOSED && $this->is_closed()) ||
+                 ($this->resp_view == $QUESTIONNAIRE_STUDENTVIEWRESPONSES_WHENANSWERED  && !$this->user_can_take($USER->id)))) {
+                return true;
+            }
+
+            /// If you can read your own response
+            if (($response->username == $USER->id) && $this->capabilities->readownresponses && ($this->count_submissions($USER->id) > 0)) {
+                return true;
+            }
+
+        } else {
+            /// If you can view all responses always, then you can view it.
+            if ($this->capabilities->readallresponseanytime) {
+                return true;
+            }
+
+            /// If you are allowed to view this response for another user.
+            if ($this->capabilities->readallresponses &&
+                ($this->resp_view == $QUESTIONNAIRE_STUDENTVIEWRESPONSES_ALWAYS ||
+                 ($this->resp_view == $QUESTIONNAIRE_STUDENTVIEWRESPONSES_WHENCLOSED && $this->is_closed()) ||
+                 ($this->resp_view == $QUESTIONNAIRE_STUDENTVIEWRESPONSES_WHENANSWERED  && !$this->user_can_take($USER->id)))) {
+                return true;
+            }
+
+            if ($this->capabilities->readownresponses && ($this->count_submissions($USER->id) > 0)) {
+             return true;
+            }
+        }
     }
 
     function count_submissions($userid=false) {
@@ -1114,7 +1168,7 @@ class questionnaire {
             	$num = 0;
                 if ($record->precise != 2) {  //dev jr 9 JUL 2010
             		$nbchoices = count($record->choices);
-                } else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified 
+                } else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified
                 	$nbchoices = $record->length;
                 }
                 $na = get_string('notapplicable', 'questionnaire');
@@ -2578,7 +2632,7 @@ class questionnaire {
             if ($isanonymous) {
             	// JR :: do not save response date for anonymous respondents
             	$submitted = '---';
-            } else {           	
+            } else {
             	//JR for better compabitility & readability with Excel
             	$submitted = date(get_string('strfdateformatcsv', 'questionnaire'), $record->submitted);
             }

@@ -1,4 +1,4 @@
-<?php // $Id: print.php,v 1.11.2.4 2008/06/20 13:36:43 mchurch Exp $
+<?php // $Id: print.php,v 1.11.2.6 2011/02/07 22:33:54 mchurch Exp $
 
     require_once("../../config.php");
     require_once($CFG->dirroot.'/mod/questionnaire/lib.php');
@@ -25,9 +25,10 @@
 
     $questionnaire = new questionnaire(0, $questionnaire, $course, $cm);
 
-    if (!$questionnaire->user_can_take($USER->id)) {
+    /// If you can't view the questionnaire, or can't view a specified response, error out.
+    if (!($questionnaire->capabilities->view && (($rid == 0) || $questionnaire->can_view_response($rid)))) {
         /// Should never happen, unless called directly by a snoop...
-        print_error('nopermissions', 'questionnaire', $CFG->wwwroot.'/mod/questionnaire/view.php?id='.$cm->id);
+        print_error('nopermissions', 'moodle', $CFG->wwwroot.'/mod/questionnaire/view.php?id='.$cm->id);
     }
 
     $currentcss = '';

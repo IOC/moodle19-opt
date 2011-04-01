@@ -1,4 +1,4 @@
-<?php  // $Id: report.php,v 1.14.2.18 2011/01/18 22:02:58 joseph_rezeau Exp $
+<?php  // $Id: report.php,v 1.14.2.20 2011/02/10 13:19:11 mchurch Exp $
 
 /// This page prints a particular instance of questionnaire
     global $SESSION, $CFG;
@@ -16,7 +16,7 @@
     $userid = $USER->id;
     switch ($action) {
 		case 'vallasort':
-	    	$sort = 'ascending';	    	
+	    	$sort = 'ascending';
 	    	break;
 		case 'vallarsort':
 	    	$sort = 'descending';
@@ -24,7 +24,7 @@
 		default:
 			$sort = 'default';
 	}
-	
+
     if ($instance === false) {
         if (!empty($SESSION->instance)) {
             $instance = $SESSION->instance;
@@ -45,15 +45,17 @@
     }
 
     require_login($course->id);
-    
+
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-    
-    /// Should never happen, unless called directly by a snoop...
-    if ( !has_capability('mod/questionnaire:readallresponseanytime',$context) ) {
-        error('Permission denied');
-    }
-    
+
     $questionnaire = new questionnaire(0, $questionnaire, $course, $cm);
+
+    /// If you can't view the questionnaire, or can't view a specified response, error out.
+    if (!($questionnaire->capabilities->view && $questionnaire->can_view_response($rid))) {
+        /// Should never happen, unless called directly by a snoop...
+        print_error('nopermissions', 'moodle', $CFG->wwwroot.'/mod/questionnaire/view.php?id='.$cm->id);
+    }
+
     $questionnaire->canviewallgroups = has_capability('moodle/site:accessallgroups', $context, NULL, false);
     $sid = $questionnaire->survey->id;
 /// Tab setup:
@@ -266,7 +268,7 @@
 	    if ( !has_capability('mod/questionnaire:deleteresponses',$context) ) {
 	        error('Permission denied');
 	    }
-    	
+
         $select = 'survey_id='.$sid.' AND complete = \'y\'';
         if (!($responses = get_records_select('questionnaire_response', $select, 'id', 'id'))) {
             return;
@@ -463,7 +465,7 @@
         if ( !has_capability('mod/questionnaire:downloadresponses',$context,$userid) ) {
             error('Permission denied');
         }
-    	
+
     	$extranav = array();
         $extranav[] = array('name' => get_string('questionnairereport', 'questionnaire'), 'link' => '', 'type' => 'activity');
         $extranav[] = array('name' => get_string('downloadtext'), 'link' => "", 'type' => 'activity');
@@ -562,7 +564,7 @@
                 $SESSION->questionnaire->current_tab = 'valldefault';
 			}
 
-			$SESSION->questionnaire->currentsessiongroupid = $currentgroupid; 
+			$SESSION->questionnaire->currentsessiongroupid = $currentgroupid;
 			include('tabs.php');
 
         if (!empty($questionnaire->survey->theme)) {

@@ -1,4 +1,4 @@
-<?php  // $Id: lib.php,v 1.20.2.12 2009/11/23 20:14:49 mchurch Exp $
+<?php  // $Id: lib.php,v 1.20.2.13 2011/02/08 20:21:45 mchurch Exp $
 
 require_once('locallib.php');
 
@@ -155,6 +155,7 @@ function questionnaire_update_instance($questionnaire) {
         $questionnaire->resume = 0;
     }
     $questionnaire->navigate = 1;
+    questionnaire_grade_item_update($questionnaire);
     questionnaire_set_events($questionnaire);
     questionnaire_update_grades($questionnaire);
     return update_record("questionnaire", $questionnaire);
@@ -363,7 +364,7 @@ function questionnaire_grade_item_update($questionnaire, $grades=NULL) {
         $params['scaleid']   = -$questionnaire->grade;
 
     } else {
-        $params = NULL; // allow text comments only
+        $params['gradetype'] = GRADE_TYPE_TEXT; // allow text comments only
     }
 
     if ($grades  === 'reset') {

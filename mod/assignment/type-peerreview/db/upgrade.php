@@ -24,7 +24,7 @@ function xmldb_assignment_type_peerreview_upgrade($oldversion=0) {
     }
 
     // Add fields for measuring feedback attention
-    if ($result && $oldversion < 2011021400) {
+    if ($result && $oldversion < 2011020100) {
         $table = new XMLDBTable('assignment_review');
         $field = new XMLDBField('timefirstviewedbyreviewee');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'reviewcomment');

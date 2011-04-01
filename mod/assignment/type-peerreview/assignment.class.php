@@ -251,7 +251,7 @@ class assignment_peerreview extends assignment_base {
                     $options = new object;
                     $options->para = false;
 					foreach($criteriaList as $i=>$criterion) {
-						echo '<tr'.($i%2==0?' class="evenCriteriaRow"':'').'><td class="criteriaCheckboxColumn"><input type="checkbox" name="criterion'.$criterion->ordernumber.'" /></td><td class="criteriaTextColumn">'.format_text(($criterion->textshownatreview!=''?$criterion->textshownatreview:$criterion->textshownwithinstructions),FORMAT_MOODLE,$options).'</td></tr>';
+						echo '<tr'.($i%2==0?' class="evenCriteriaRow"':'').'><td class="criteriaCheckboxColumn"><input type="checkbox" name="criterion'.$criterion->ordernumber.'" id="criterion'.$criterion->ordernumber.'" /></td><td class="criteriaTextColumn"><label for="criterion'.$criterion->ordernumber.'">'.format_text(($criterion->textshownatreview!=''?$criterion->textshownatreview:$criterion->textshownwithinstructions),FORMAT_MOODLE,$options).'</label></td></tr>';
 					}
 					echo '</table>';
 					print_spacer(20);
@@ -382,9 +382,13 @@ class assignment_peerreview extends assignment_base {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/questionMark.gif" style="vertical-align:middle;" />&nbsp;';
                 print_string('notenoughreviewstocompare','assignment_peerreview');
             }
-            else if ($timeTakenReviewing/2 < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing/2 < $reviewStats->averageReviewTime-$reviewStats->stdDevReviewTime) {
+            else if ($timeTakenReviewing/2 < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing/2 < $reviewStats->reviewTimeOutlierLowerBoundary) {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
                 print_string('shorterthanmost','assignment_peerreview');
+            }
+            else if ($timeTakenReviewing/2 > $reviewStats->reviewTimeOutlierUpperBoundary) {
+                echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
+                print_string('longerthanmost','assignment_peerreview');
             }
             else {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/tick.gif" style="vertical-align:middle;" />&nbsp;';
@@ -398,9 +402,13 @@ class assignment_peerreview extends assignment_base {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/questionMark.gif" style="vertical-align:middle;" />&nbsp;';
                 print_string('notenoughreviewstocompare','assignment_peerreview');
             }
-            else if ($commentLength/2 < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength/2 < $reviewStats->averageCommentLength-$reviewStats->stdDevCommentLength) {
+            else if ($commentLength/2 < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength/2 < $reviewStats->commentLengthOutlierLowerBoundary) {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
                 print_string('shorterthanmost','assignment_peerreview');
+            }
+            else if ($commentLength/2 > $reviewStats->commentLengthOutlierUpperBoundary) {
+                echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
+                print_string('longerthanmost','assignment_peerreview');
             }
             else {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/tick.gif" style="vertical-align:middle;" />&nbsp;';
@@ -513,9 +521,10 @@ class assignment_peerreview extends assignment_base {
 			// Show criteria
 			print_box_start();
             echo '<a name="criteria"></a>';
-			print_heading(get_string('criteria','assignment_peerreview'),'left');
+            print_heading(get_string('criteria','assignment_peerreview'),'left');
 			if (has_capability('mod/assignment:grade', get_context_instance(CONTEXT_MODULE,$this->cm->id))) {
 				echo '<p><a href="type/peerreview/'.self::CRITERIA_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'">'.get_string('setcriteria', 'assignment_peerreview').'</a></p>';
+                print_heading(get_string('criteriabeforesubmission','assignment_peerreview'),'left',3);
 			}
 			if($numberOfCriteria>0) {
 				echo '<table style="width:99%;">';
@@ -525,6 +534,14 @@ class assignment_peerreview extends assignment_base {
 					echo '<tr '.($i%2==0?'class="evenCriteriaRow"':'').'><td class="criteriaCheckboxColumn"><input type="checkbox" checked disabled /></td><td class="criteriaTextColumn">'.format_text($criterion->textshownwithinstructions,FORMAT_MOODLE,$options).'</td></tr>';
 				}
 				echo '</table>';
+                if (has_capability('mod/assignment:grade', get_context_instance(CONTEXT_MODULE,$this->cm->id))) {
+                    print_heading(get_string('criteriaaftersubmission','assignment_peerreview'),'left',3);
+                    echo '<table style="width:99%;">';
+                    foreach($criteriaList as $i=>$criterion) {
+    					echo '<tr '.($i%2==0?'class="evenCriteriaRow"':'').'><td class="criteriaCheckboxColumn"><input type="checkbox" checked disabled /></td><td class="criteriaTextColumn">'.format_text(($criteriaList[$i]->textshownatreview!=''?$criteriaList[$i]->textshownatreview:$criteriaList[$i]->textshownwithinstructions),FORMAT_MOODLE,$options).'</td></tr>';
+                    }
+                    echo '</table>';
+                }
 			}
 			else {
 				notify(get_string('nocriteriaset','assignment_peerreview'));
@@ -880,8 +897,8 @@ class assignment_peerreview extends assignment_base {
                             $timeTakenReviewing = $reviewsByThisStudent[$i]->timecompleted - $reviewsByThisStudent[$i]->timedownloaded;
                             $commentLength = strlen($reviewsByThisStudent[$i]->reviewcomment);
                             if(
-                                ($timeTakenReviewing < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing < $reviewStats->averageReviewTime-$reviewStats->stdDevReviewTime) &&
-                                ($commentLength < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength < $reviewStats->averageCommentLength-$reviewStats->stdDevCommentLength)
+                                ($timeTakenReviewing < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing < $reviewStats->reviewTimeOutlierLowerBoundary) &&
+                                ($commentLength < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength < $reviewStats->commentLengthOutlierLowerBoundary)
                             ) {
                                 $buttonText .= '&nbsp;?';
                             }
@@ -1205,8 +1222,8 @@ class assignment_peerreview extends assignment_base {
             $commentLength = strlen($reviews[$i]->reviewcomment);
             if(
                 $reviews[$i]->teacherreview==0 &&
-                ($timeTakenReviewing < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing < $reviewStats->averageReviewTime-$reviewStats->stdDevReviewTime) &&
-                ($commentLength < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength < $reviewStats->averageCommentLength-$reviewStats->stdDevCommentLength)
+                ($timeTakenReviewing < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing < $reviewStats->reviewTimeOutlierLowerBoundary) &&
+                ($commentLength < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength < $reviewStats->commentLengthOutlierLowerBoundary)
             ) {
                 echo '<span style="color:#ff0000;font-weight:bold">!</span> ';
             }
@@ -1227,8 +1244,8 @@ class assignment_peerreview extends assignment_base {
 			for($j=0; $j<$numberOfReviewsOfThisStudent; $j++) {
 				echo '<td class="criteriaCheckboxColumn" style="background:'.$this->REVIEW_COLOURS[$j%$this->NUMBER_OF_COLOURS].'"><input type="checkbox" name="checked'.$reviews[$j]->review.'crit'.$i.'" '.($reviews[$j]->{'checked'.$i}==1?' checked':'').' onchange="allowSavePrev();" /></td>';
 			}
-			echo '<td class="criteriaCheckboxColumn"><input type="checkbox" name="newChecked'.$i.'" onchange="allowSaveNew();" /></td>';
-			echo '<td class="criteriaDisplayColumn">'.format_text($criteriaList[$i]->textshownatreview!=''?$criteriaList[$i]->textshownatreview:$criteriaList[$i]->textshownwithinstructions,FORMAT_MOODLE,$options).'</td>';
+			echo '<td class="criteriaCheckboxColumn"><input type="checkbox" name="newChecked'.$i.'" id="newChecked'.$i.'" onchange="allowSaveNew();" /></td>';
+			echo '<td class="criteriaDisplayColumn"><label for="newChecked'.$i.'">'.format_text($criteriaList[$i]->textshownatreview!=''?$criteriaList[$i]->textshownatreview:$criteriaList[$i]->textshownwithinstructions,FORMAT_MOODLE,$options).'</label></td>';
 			echo '</tr>';
 		}
 		echo '<tr>';
@@ -1261,12 +1278,12 @@ class assignment_peerreview extends assignment_base {
             if($reviews[$numberOfReviewsOfThisStudent-$i-1]->teacherreview==0) {
                 $timeTakenReviewing = $reviews[$numberOfReviewsOfThisStudent-$i-1]->timecompleted - $reviews[$numberOfReviewsOfThisStudent-$i-1]->timedownloaded;
                 echo (int)($timeTakenReviewing/60).get_string('minutes','assignment_peerreview').' '.($timeTakenReviewing%60).get_string('seconds','assignment_peerreview').' ';
-                if($timeTakenReviewing < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing < $reviewStats->averageReviewTime-$reviewStats->stdDevReviewTime) {
+                if($timeTakenReviewing < self::MINIMAL_REVIEW_TIME || $timeTakenReviewing < $reviewStats->reviewTimeOutlierLowerBoundary) {
                     echo '<span style="color:#ff0000;font-weight:bold;">'.get_string('quick','assignment_peerreview').'!</span>';
                 }
                 echo ', ';
                 $commentLength = strlen($reviews[$numberOfReviewsOfThisStudent-$i-1]->reviewcomment);
-                if($commentLength < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength < $reviewStats->averageCommentLength-$reviewStats->stdDevCommentLength) {
+                if($commentLength < self::MINIMAL_REVIEW_COMMENT_LENGTH || $commentLength < $reviewStats->commentLengthOutlierLowerBoundary) {
                     echo '<span style="color:#ff0000;font-weight:bold;">'.get_string('short','assignment_peerreview').'!</span>, ';
                 }
             }
@@ -2079,6 +2096,9 @@ class assignment_peerreview extends assignment_base {
                 fwrite ($bf,full_tag("TEACHERREVIEW",7,false,$review->teacherreview));
                 fwrite ($bf,full_tag("FLAGGED",7,false,$review->flagged));
                 fwrite ($bf,full_tag("REVIEWCOMMENT",7,false,$review->reviewcomment));
+                fwrite ($bf,full_tag("TIMEFIRSTVIEWEDBYREVIEWEE",7,false,$review->timefirstviewedbyreviewee));
+                fwrite ($bf,full_tag("TIMELASTVIEWEDBYREVIEWEE",7,false,$review->timelastviewedbyreviewee));
+                fwrite ($bf,full_tag("TIMESVIEWEDBYREVIEWEE",7,false,$review->timesviewedbyreviewee));
                 if($reviewCriteria = get_records('assignment_review_criterion','review',$review->id,'review')) {
                     foreach ($reviewCriteria as $reviewCriterion) {
                         fwrite ($bf,start_tag("REVIEWCRITERION",7,true));
@@ -2133,20 +2153,22 @@ class assignment_peerreview extends assignment_base {
 
             foreach ($reviews as $review) {
                 $revRecord = new stdclass;
-                $revRecord->assignment     = $submission->assignment;
-                $revRecord->reviewer       = backup_todb($review['#']['REVIEWER']['0']['#']);
-                $revRecord->reviewee       = backup_todb($review['#']['REVIEWEE']['0']['#']);
-                $revRecord->timeallocated  = backup_todb($review['#']['TIMEALLOCATED']['0']['#']);
-                $revRecord->timemodified   = backup_todb($review['#']['TIMEMODIFIED']['0']['#']);
-                $revRecord->downloaded     = backup_todb($review['#']['DOWNLOADED']['0']['#']);
-                $revRecord->timedownloaded = backup_todb($review['#']['TIMEDOWNLOADED']['0']['#']);
-                $revRecord->complete       = backup_todb($review['#']['COMPLETE']['0']['#']);
-                $revRecord->timecompleted  = backup_todb($review['#']['TIMECOMPLETED']['0']['#']);
-                $revRecord->teacherreview  = backup_todb($review['#']['TEACHERREVIEW']['0']['#']);
-                $revRecord->flagged        = backup_todb($review['#']['FLAGGED']['0']['#']);
-                $revRecord->reviewcomment  = backup_todb($review['#']['REVIEWCOMMENT']['0']['#']);
+                $revRecord->assignment                 = $submission->assignment;
+                $revRecord->reviewer                   = backup_todb($review['#']['REVIEWER']['0']['#']);
+                $revRecord->reviewee                   = backup_todb($review['#']['REVIEWEE']['0']['#']);
+                $revRecord->timeallocated              = backup_todb($review['#']['TIMEALLOCATED']['0']['#']);
+                $revRecord->timemodified               = backup_todb($review['#']['TIMEMODIFIED']['0']['#']);
+                $revRecord->downloaded                 = backup_todb($review['#']['DOWNLOADED']['0']['#']);
+                $revRecord->timedownloaded             = backup_todb($review['#']['TIMEDOWNLOADED']['0']['#']);
+                $revRecord->complete                   = backup_todb($review['#']['COMPLETE']['0']['#']);
+                $revRecord->timecompleted              = backup_todb($review['#']['TIMECOMPLETED']['0']['#']);
+                $revRecord->teacherreview              = backup_todb($review['#']['TEACHERREVIEW']['0']['#']);
+                $revRecord->flagged                    = backup_todb($review['#']['FLAGGED']['0']['#']);
+                $revRecord->reviewcomment              = backup_todb($review['#']['REVIEWCOMMENT']['0']['#']);
+                $revRecord->timefirstviewedbyreviewee  = backup_todb($review['#']['TIMEFIRSTVIEWEDBYREVIEWEE']['0']['#']);
+                $revRecord->timelastviewedbyreviewee   = backup_todb($review['#']['TIMELASTVIEWEDBYREVIEWEE']['0']['#']);
+                $revRecord->timesviewedbyreviewee      = backup_todb($review['#']['TIMESVIEWEDBYREVIEWEE']['0']['#']);
                 $revID = insert_record('assignment_review', $revRecord, true);
-
                 if(@isset($review['#']['REVIEWCRITERION'])) {
                     foreach ($review['#']['REVIEWCRITERION'] as $reviewCriterion) {
                         $revCritRecord = new stdclass;
@@ -2172,12 +2194,18 @@ class assignment_peerreview extends assignment_base {
         $stats->moderationRate = 0;
         $stats->totalReviewTime = 0; // seconds
         $stats->averageReviewTime = 0; // seconds
+        $stats->normalisedAverageReviewTime = 0; // seconds
         $stats->stdDevReviewTime = 0; // seconds
         $stats->minReviewTime = PHP_INT_MAX; // seconds
         $stats->maxReviewTime = 0; // seconds
         $stats->totalCommentLength = 0; // characters
         $stats->averageCommentLength = 0; // characters
+        $stats->normalisedAverageCommentLength = 0; // characters
         $stats->stdDevCommentLength = 0; // characters
+        $stats->reviewTimeOutlierLowerBoundary = 0; // seconds
+        $stats->reviewTimeOutlierUpperBoundary = 0; // seconds
+        $stats->commentLengthOutlierLowerBoundary = 0;
+        $stats->commentLengthOutlierUpperBoundary = 0;
         $stats->minCommentLength = PHP_INT_MAX; // characters
         $stats->maxCommentLength = 0; // characters        
         $stats->flags = 0;
@@ -2189,6 +2217,8 @@ class assignment_peerreview extends assignment_base {
         $stats->totalPeriodBetweenReviewAndView = 0; // seconds
         $stats->averagePeriodBewtweenReviewAndView = 0; // seconds
         $stats->medianPeriodBewtweenReviewAndView = 0; // seconds
+        $commentLengths = array();
+        $reviewTimes = array();
         $waitTimes = array();
 
         // Get submission and moderation stats
@@ -2198,15 +2228,16 @@ class assignment_peerreview extends assignment_base {
 
         // Calculate review stats
         $reviews = get_records_select('assignment_review', 'assignment=\''.$this->assignment->id.'\' AND teacherreview=\'0\' AND complete=\'1\'','id');
-		if(is_array($reviews)) {
-            $stats->numberOfReviews = count($reviews);
+        $stats->numberOfReviews = count($reviews);
+		if(is_array($reviews) && $stats->numberOfReviews >= self::REVIEW_FEEDBACK_MIN) {
             $stats->reviewRate = $stats->numberOfSubmissions==0?0:$stats->numberOfReviews/2/$stats->numberOfSubmissions;
-        
-            // Average calculations, review checked stats and flag counting
+
+            // Collect review times and lengths for normalisation
             foreach($reviews as $id=>$review) {
-                
+
                 // Review times
                 $reviewTime = $review->timecompleted - $review->timedownloaded;
+                $reviewTimes[] = $reviewTime;
                 $stats->totalReviewTime += $reviewTime;
                 if($reviewTime > $stats->maxReviewTime) {
                     $stats->maxReviewTime = $reviewTime;
@@ -2214,9 +2245,10 @@ class assignment_peerreview extends assignment_base {
                 if($reviewTime < $stats->minReviewTime) {
                     $stats->minReviewTime = $reviewTime;
                 }
-                
+
                 // Comment lengths
                 $commentLength = strlen($review->reviewcomment);
+                $commentLengths[] = $commentLength;
                 $stats->totalCommentLength += $commentLength;
                 if($commentLength > $stats->maxCommentLength) {
                     $stats->maxCommentLength = $commentLength;
@@ -2240,9 +2272,55 @@ class assignment_peerreview extends assignment_base {
                 }
             }
 
+            // Normalise the stats before calculating averages
+            sort($reviewTimes);
+            sort($commentLengths);
+            $reviewTimeLowerQuartileBound = $reviewTimes[floor($stats->numberOfReviews*0.25)];
+            $reviewTimeThirdQuartileBound = $reviewTimes[floor($stats->numberOfReviews*0.75)];
+            $commentLengthLowerQuartileBound = $commentLengths[(int)$stats->numberOfReviews*0.25];
+            $commentLengthThirdQuartileBound = $commentLengths[(int)$stats->numberOfReviews*0.75];
+            $interQuartileDistanceTime = $reviewTimeThirdQuartileBound - $reviewTimeLowerQuartileBound;
+            $interQuartileDistanceLength = $commentLengthThirdQuartileBound - $commentLengthLowerQuartileBound;
+            $stats->reviewTimeOutlierLowerBoundary = $reviewTimeLowerQuartileBound - 1.5*$interQuartileDistanceTime;
+            $stats->reviewTimeOutlierUpperBoundary = $reviewTimeThirdQuartileBound + 1.5*$interQuartileDistanceTime;
+            $stats->commentLengthOutlierLowerBoundary = $commentLengthLowerQuartileBound - 1.5*$interQuartileDistanceTime;
+            $stats->commentLengthOutlierUpperBoundary = $commentLengthThirdQuartileBound + 1.5*$interQuartileDistanceTime;
+
+            // Remove outliers from the ends of the arrays
+            $numberOfNormalisedReviewTimes = $stats->numberOfReviews;
+            while($reviewTimes[$numberOfNormalisedReviewTimes-1] > $stats->reviewTimeOutlierUpperBoundary) {
+                $numberOfNormalisedReviewTimes--;
+                array_pop($reviewTimes);
+            }
+            while($reviewTimes[0] < $stats->reviewTimeOutlierLowerBoundary) {
+                $numberOfNormalisedReviewTimes--;
+                array_shift($reviewTimes);
+            }
+            $numberOfNormalisedCommentLengths = $stats->numberOfReviews;
+            while($commentLengths[$numberOfNormalisedCommentLengths-1] > $stats->commentLengthOutlierUpperBoundary) {
+                $numberOfNormalisedCommentLengths--;
+                array_pop($commentLengths);
+            }
+            while($commentLengths[0] > $stats->commentLengthOutlierUpperBoundary) {
+                $numberOfNormalisedCommentLengths--;
+                array_shift($commentLengths);
+            }
+
+            // Normalised average summing
+            $normalisedReviewTimeSum = 0;
+            foreach($reviewTimes as $reviewTime) {
+                $normalisedReviewTimeSum += $reviewTime;
+            }
+            $normalisedCommentLengthSum = 0;
+            foreach($commentLengths as $commentLength) {
+                $normalisedCommentLengthSum += $commentLength;
+            }
+
             // Average calculations
             $stats->averageReviewTime = $stats->totalReviewTime/$stats->numberOfReviews;
+            $stats->normalisedAverageReviewTime = $normalisedReviewTimeSum / $numberOfNormalisedReviewTimes;
             $stats->averageCommentLength = $stats->totalCommentLength/$stats->numberOfReviews;
+            $stats->normalisedAverageCommentLength = $normalisedCommentLengthSum / $numberOfNormalisedCommentLengths;
             $stats->flagRate = $stats->flags/$stats->numberOfReviews;
             $stats->reviewAttentionRate = $stats->numberOfReviewsViewed/$stats->numberOfReviews;
             $stats->averageViewRate = $stats->numberOfReviewViews/$stats->numberOfReviews;
@@ -2337,7 +2415,7 @@ class assignment_peerreview extends assignment_base {
         
         // Get the number of submissions and rate
         $stats->numberOfSubmissions = count_records('assignment_submissions','assignment',$this->assignment->id);
-        $stats->submissionRate = $stats->numberOfSubmissions/$stats->numberOfStudents;
+        $stats->submissionRate = $stats->numberOfSubmissions==0?0:$stats->numberOfSubmissions/$stats->numberOfStudents;
 
         $sql = 'SELECT userid, timecreated, timecompleted '.
                'FROM '.$CFG->prefix.'assignment_submissions s, '.$CFG->prefix.'assignment_review r '.
@@ -2433,15 +2511,11 @@ class assignment_peerreview extends assignment_base {
         $table->add_data(array($label,$value));
 
         $label = get_string('analysislabelaveragewait','assignment_peerreview');
-        $value = (int)($submissionStats->averageWaitForFeedback/3600).' '.get_string('hours','assignment_peerreview').', ';
-        $value .= (int)($submissionStats->averageWaitForFeedback%3600/60).' '.get_string('minutes','assignment_peerreview').', ';
-        $value .= ($submissionStats->averageWaitForFeedback%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $submissionStats->numberOfSubmissions>0?'':format_time((int)$submissionStats->averageWaitForFeedback);
         $table->add_data(array($label,$value));
 
         $label = get_string('analysislabelmedianwait','assignment_peerreview');
-        $value = (int)($submissionStats->medianWaitForFeedback/3600).' '.get_string('hours','assignment_peerreview').', ';
-        $value .= (int)($submissionStats->medianWaitForFeedback%3600/60).' '.get_string('minutes','assignment_peerreview').', ';
-        $value .= ($submissionStats->medianWaitForFeedback%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $submissionStats->numberOfSubmissions>0?'':format_time($submissionStats->medianWaitForFeedback);
         $table->add_data(array($label,$value));
 
         $table->print_html();
@@ -2474,74 +2548,88 @@ class assignment_peerreview extends assignment_base {
         $label = get_string('analysislabelreviewscompleted','assignment_peerreview');
         $value = $reviewStats->numberOfReviews;
         $hints = '';
+        if($reviewStats->numberOfReviews < self::REVIEW_FEEDBACK_MIN) {
+            $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
+            $hints .= get_string('advicereviewmin','assignment_peerreview', self::REVIEW_FEEDBACK_MIN);
+        }
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('analysislabelreviewrate','assignment_peerreview');
-        $value = (int)($reviewStats->reviewRate*100).'%';
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)($reviewStats->reviewRate*100).'%';
         $hints = '';
-        if($reviewStats->reviewRate < self::ACCEPTABLE_REVIEW_RATE) {
+        if($reviewStats->numberOfReviews>=self::REVIEW_FEEDBACK_MIN && $reviewStats->reviewRate < self::ACCEPTABLE_REVIEW_RATE) {
             $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
             $hints .= get_string('advicereviewrate','assignment_peerreview');
         }
         $table->add_data(array($label,$value,$hints));
 
-        $label = get_string('analysislabelaveragereviewtime','assignment_peerreview');
-        $value = (int)($reviewStats->averageReviewTime/60).' '.get_string('minutes','assignment_peerreview').', '.($reviewStats->averageReviewTime%60).' '.get_string('seconds','assignment_peerreview');
+        $label = get_string('analysislabelnormalisedaveragereviewtime','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time((int)$reviewStats->normalisedAverageReviewTime);
         $hints = '';
-        if($reviewStats->averageReviewTime < self::ACCEPTABLE_REVIEW_TIME) {
+        if($reviewStats->numberOfReviews>=self::REVIEW_FEEDBACK_MIN && $reviewStats->normalisedAverageReviewTime < self::ACCEPTABLE_REVIEW_TIME) {
             $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
             $hints .= get_string('advicereviewtime','assignment_peerreview');
         }
         $table->add_data(array($label,$value,$hints));
-        
+
+        $label = get_string('analysislabelaveragereviewtime','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time((int)$reviewStats->averageReviewTime);
+        $hints = '';
+        $table->add_data(array($label,$value,$hints));
+
         $label = get_string('analysislabelstddevreviewtime','assignment_peerreview');
-        $value = (int)($reviewStats->stdDevReviewTime/60).' '.get_string('minutes','assignment_peerreview').', '.($reviewStats->stdDevReviewTime%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time((int)$reviewStats->stdDevReviewTime);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('analysislabelminreview','assignment_peerreview');
-        $value = (int)($reviewStats->minReviewTime/60).' '.get_string('minutes','assignment_peerreview').', '.($reviewStats->minReviewTime%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time($reviewStats->minReviewTime);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
         
         $label = get_string('analysislabelmaxreview','assignment_peerreview');
-        $value = (int)($reviewStats->maxReviewTime/60).' '.get_string('minutes','assignment_peerreview').', '.($reviewStats->maxReviewTime%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time($reviewStats->maxReviewTime);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
         
-        $label = get_string('analysislabelaveragecomment','assignment_peerreview');
-        $value = (int)$reviewStats->averageCommentLength.' '.get_string('characters','assignment_peerreview');
+        $label = get_string('analysislabelnormalisedaveragecomment','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)$reviewStats->normalisedAverageCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
-        if($reviewStats->averageCommentLength < self::ACCEPTABLE_COMMENT_LENGTH) {
+        if($reviewStats->numberOfReviews>=self::REVIEW_FEEDBACK_MIN && $reviewStats->normalisedAverageCommentLength < self::ACCEPTABLE_COMMENT_LENGTH) {
             $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
             $hints .= get_string('advicecommentlength','assignment_peerreview');
         }
         $table->add_data(array($label,$value,$hints));
-        
+
+        $label = get_string('analysislabelaveragecomment','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)$reviewStats->averageCommentLength.' '.get_string('characters','assignment_peerreview');
+        $hints = '';
+        $table->add_data(array($label,$value,$hints));
+
         $label = get_string('analysislabelstddevcomment','assignment_peerreview');
-        $value = (int)$reviewStats->stdDevCommentLength.' '.get_string('characters','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)$reviewStats->stdDevCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('analysislabelmincomment','assignment_peerreview');
-        $value = $reviewStats->minCommentLength.' '.get_string('characters','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->minCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
         $table->add_data(array($label,$value,$hints));
         
         $label = get_string('analysislabelmaxcomment','assignment_peerreview');
-        $value = $reviewStats->maxCommentLength.' '.get_string('characters','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->maxCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
         $table->add_data(array($label,$value,$hints));
         
         $label = get_string('analysislabelflags','assignment_peerreview');
-        $value = $reviewStats->flags;
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->flags;
         $hints = '';
         $table->add_data(array($label,$value,$hints));
         
         $label = get_string('analysislabelflagrate','assignment_peerreview');
-        $value = (int)($reviewStats->flagRate*100).'%';
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)($reviewStats->flagRate*100).'%';
         $hints = '';
-        if($reviewStats->flagRate > self::ACCEPTABLE_FLAG_RATE) {
+        if($reviewStats->numberOfReviews>=self::REVIEW_FEEDBACK_MIN && $reviewStats->flagRate > self::ACCEPTABLE_FLAG_RATE) {
             $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
             $hints .= get_string('adviceflagrate','assignment_peerreview');
         }
@@ -2586,40 +2674,40 @@ class assignment_peerreview extends assignment_base {
         $table->setup();
 
         $label = get_string('numberofreviewsviewed','assignment_peerreview');
-        $value = $reviewStats->numberOfReviewsViewed;
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->numberOfReviewsViewed;
         $hints = '';
+        if($reviewStats->numberOfReviews < self::REVIEW_FEEDBACK_MIN) {
+            $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
+            $hints .= get_string('advicereviewmin','assignment_peerreview', self::REVIEW_FEEDBACK_MIN);
+        }
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('reviewattentionrate','assignment_peerreview');
-        $value = (int)($reviewStats->reviewAttentionRate*100).'%';
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)($reviewStats->reviewAttentionRate*100).'%';
         $hints = '';
-        if($reviewStats->reviewAttentionRate < self::ACCEPTABLE_REVIEW_RATE) {
+        if($reviewStats->numberOfReviews>=self::REVIEW_FEEDBACK_MIN && $reviewStats->reviewAttentionRate < self::ACCEPTABLE_REVIEW_RATE) {
             $hints .= '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
             $hints .= get_string('advicereviewattentionrate','assignment_peerreview');
         }
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('numberofreviewviews','assignment_peerreview');
-        $value = $reviewStats->numberOfReviewViews;
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->numberOfReviewViews;
         $hints = '';
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('averageviewrate','assignment_peerreview');
-        $value = $reviewStats->averageViewRate;
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->averageViewRate;
         $hints = '';
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('averageperiodbewtweenreviewandview','assignment_peerreview');
-        $value = (int)($reviewStats->averagePeriodBewtweenReviewAndView/3600).' '.get_string('hours','assignment_peerreview').', ';
-        $value .= (int)($reviewStats->averagePeriodBewtweenReviewAndView%3600/60).' '.get_string('minutes','assignment_peerreview').', ';
-        $value .= ($reviewStats->averagePeriodBewtweenReviewAndView%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time((int)$reviewStats->averagePeriodBewtweenReviewAndView);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
 
         $label = get_string('medianperiodbewtweenreviewandview','assignment_peerreview');
-        $value = (int)($reviewStats->medianPeriodBewtweenReviewAndView/3600).' '.get_string('hours','assignment_peerreview').', ';
-        $value .= (int)($reviewStats->medianPeriodBewtweenReviewAndView%3600/60).' '.get_string('minutes','assignment_peerreview').', ';
-        $value .= ($reviewStats->medianPeriodBewtweenReviewAndView%60).' '.get_string('seconds','assignment_peerreview');
+        $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time($reviewStats->medianPeriodBewtweenReviewAndView);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
 

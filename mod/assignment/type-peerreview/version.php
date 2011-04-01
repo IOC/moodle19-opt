@@ -1,6 +1,6 @@
 <?php
 
-$plugin->version = 2011021400; // YYYYMMDDnn for when the plugin was created
+$plugin->version = 2011032500; // YYYYMMDDnn for when the plugin was created
 
 // Version required: Moodle 1.9.7 for Assignment type fix (see http://tracker.moodle.org/browse/MDL-16796)
 

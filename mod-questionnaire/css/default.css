@@ -1,4 +1,4 @@
-/* $Id: default.css,v 1.4.2.5 2009/03/17 07:34:33 joseph_rezeau Exp $ */
+/* $Id: default.css,v 1.4.2.6 2011/04/06 21:38:55 joseph_rezeau Exp $ */
 .mod-questionnaire form {
 }
 
@@ -306,4 +306,7 @@ input[type="button"]:focus {
   .closewindow {
     display:none;
   }
+}
+.radioelement {
+    float: left;
 }

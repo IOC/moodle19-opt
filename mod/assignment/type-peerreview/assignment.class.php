@@ -712,6 +712,7 @@ class assignment_peerreview extends assignment_base {
         if (isset($_POST['updatepref'])){
             $perpage = optional_param('perpage', 20, PARAM_INT);
             $perpage = ($perpage <= 0) ? 20 : $perpage ;
+            $perpage = min($perpage, 100);
             set_user_preference('assignment_perpage', $perpage);
             $moderationtarget = optional_param('moderationtarget', 0, PARAM_INT);
             $moderationtarget = ($moderationtarget <= 0) ? 0 : $moderationtarget ;

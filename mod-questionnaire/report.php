@@ -1,4 +1,4 @@
-<?php  // $Id: report.php,v 1.14.2.20 2011/02/10 13:19:11 mchurch Exp $
+<?php  // $Id: report.php,v 1.14.2.21 2011/04/11 12:39:42 mchurch Exp $
 
 /// This page prints a particular instance of questionnaire
     global $SESSION, $CFG;
@@ -146,8 +146,7 @@
                 $respsnongroupmembers = array();
             }
             foreach ($respsnongroupmembers as $resp=>$key) {
-                $userid = $key->user;
-                if (groups_has_membership($cm, $userid)) {
+                if (groups_has_membership($cm, $key->user)) {
                     unset($respsnongroupmembers[$resp]);
                 }
             }

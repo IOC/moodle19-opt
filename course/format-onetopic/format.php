@@ -104,7 +104,20 @@
 	$pestanas = array();
 
     while ($section <= $course->numsections) {
-        if (!empty($sections[$section])) {
+        if (empty($sections[$section])) {
+            unset($newsection);
+            $newsection->course = $course->id;   // Create a new section structure
+            $newsection->section = $section;
+            $newsection->summary = '';
+            $newsection->visible = 1;
+            if (!$newsection->id = insert_record('course_sections', $newsection)) {
+                notify('Error inserting new topic!');
+            }
+			
+			$sections[$section] = $newsection;
+        }
+
+		if (!empty($sections[$section])) {
             $thissection = $sections[$section];
 
 	        $showsection = (has_capability('moodle/course:viewhiddensections', $context) or $thissection->visible or !$course->hiddensections);
@@ -112,18 +125,23 @@
 			if (isset($displaysection)) {
 				if ($showsection) {
 					$strsummary = strip_tags(format_string($thissection->summary,true));
-					if (strlen($strsummary) < 57) {
-						$strsummary = ' - '.$strsummary;
-					} else {
-						$strsummary = ' - '.substr($strsummary, 0, 60).'...';
-					}
 
+					if (empty($strsummary)) {
+						$strsummary = $strtopic . ' ' . $section;
+					}
+					else if (strlen($strsummary) < 57) {
+						$strsummary = $strsummary;
+					}
+					else {
+						$strsummary = substr($strsummary, 0, 60).'...';
+					}
+					
 					if ($displaysection != $section) {
-						$sectionmenu['topic='.$section] = s($section.$strsummary);
+						$sectionmenu['topic='.$section] = s($strsummary);
 					}
 					
 					$pestanas[] = new tabobject("tab_topic_" . $section, $CFG->wwwroot.'/course/view.php?id='.$course->id . '&topic='.$section,
-                    '<font style="white-space:nowrap">' . s($section.$strsummary) . "</font>", s($section.$strsummary));
+                    '<font style="white-space:nowrap">' . s($strsummary) . "</font>", s($strsummary));
 				}
 				$section++;
 				continue;

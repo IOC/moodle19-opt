@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $string['accept'] = 'Akceptuj';
 $string['addusersto'] = 'Do';
 $string['anotherfile'] = 'Dołącz kolejny plik';

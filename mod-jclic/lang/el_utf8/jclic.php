@@ -1,4 +1,4 @@
-﻿<?PHP // $Id: jclic.php,v 1.6 2011-05-25 12:55:55 sarjona Exp $
+<?PHP // $Id: jclic.php,v 1.6 2011-05-25 12:55:55 sarjona Exp $
 // Translator: Yannis Kaskamanidis - date: 2008/11/10 17:04:57
 // e-mail: ttnfy17@yahoo.gr
 

@@ -566,6 +566,7 @@ function questionnaire_get_surveys_menu($status=NULL) {
 /// Make sure a "require_once('phpESP/admin/phpESP.ini.php')" line is included.
 /// Don't need to include this for all library functions, so don't.
 function questionnaire_get_survey_list($courseid=0, $type='') {
+    global $CFG;
     global $QUESTIONNAIRE_EDITING, $QUESTIONNAIRE_ACTIVE1, $QUESTIONNAIRE_ENDED,
            $QUESTIONNAIRE_ARCHIVED, $QUESTIONNAIRE_TESTING, $QUESTIONNAIRE_ACTIVE2;
 
@@ -589,7 +590,11 @@ function questionnaire_get_survey_list($courseid=0, $type='') {
         $select = 'status != '.$QUESTIONNAIRE_ARCHIVED.' AND owner = \''.$courseid.'\' ';
         $fields = 'id,name,owner,realm,status';
     }
-    return get_records_select('questionnaire_survey', $select, 'realm,name', $fields);
+    $sql = "SELECT s.*, c.shortname AS course"
+        . " FROM (SELECT $fields FROM {$CFG->prefix}questionnaire_survey WHERE $select) s"
+        . " JOIN {$CFG->prefix}course c ON c.id = s.owner"
+        . " ORDER BY c.shortname, s.title";
+    return get_records_sql($sql);
 }
 
 function questionnaire_survey_has_questions($sid) {
@@ -685,10 +690,9 @@ function questionnaire_get_survey_select($instance, $courseid=0, $sid=0, $type='
             if ($type == 'public' && $survey->owner == $courseid) {
                 continue;
             } else {
-
                 $label = link_to_popup_window ($CFG->wwwroot.'/mod/questionnaire/preview.php?sid='.$survey->id.'&popup=1',
                                                null, $survey->title, 400, 500, $strpreview, null, true);
-                $surveylist[$type.'-'.$survey->id] = $label;
+                $surveylist[$type.'-'.$survey->id] = $label . ' (' . s($survey->course) . ')';
 /// JR deprecated - waiting for preview function to be restored?
 /*                    link_to_popup_window('/mod/questionnaire/manage_survey.php?course='.$courseid.
                                          '&amp;qact=preview&amp;instance='.$instance.'&amp;sid='.$survey->id,

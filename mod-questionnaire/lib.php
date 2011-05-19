@@ -746,6 +746,9 @@ function questionnaire_get_post_actions() {
  */
 function questionnaire_print_overview($courses,&$htmlarray) {
 
+    // mymoodle overview disabled
+    return;
+
     global $USER, $CFG;
     $QUESTIONNAIRE_STUDENTVIEWRESPONSES_WHENANSWERED = 0;
     $QUESTIONNAIRE_STUDENTVIEWRESPONSES_WHENANSWERED = 1;

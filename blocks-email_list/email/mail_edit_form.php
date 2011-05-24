@@ -212,6 +212,9 @@ class mail_edit_form extends moodleform {
     		$error['namebcc'] = get_string('nosenders', 'block_email_list');
     	}
 
+        if (!empty($data['subject']) and !trim($data['subject'])) {
+            $error['subject'] = get_string('nosubject', 'block_email_list');
+        }
 
     	/// TODO: Add all inputs files who added by user
     	foreach( $_FILES as $key=>$value) {

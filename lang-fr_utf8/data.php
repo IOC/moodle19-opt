@@ -1,4 +1,4 @@
-<?php // $Id: data.php,v 1.87 2010/03/14 14:42:03 martignoni Exp $
+<?php // $Id: data.php,v 1.88 2011/05/25 09:08:21 martignoni Exp $
 
 $string['action'] = 'Action';
 $string['add'] = 'Ajouter une fiche'; // enregistrement ou fiche ?
@@ -100,6 +100,7 @@ $string['errormustbeteacher'] = 'Vous devez être enseignant pour afficher cette
 $string['example'] = 'Exemple de module Base de données';
 $string['excel'] = 'Excel';
 $string['excelformat'] = 'Format Excel';
+$string['expired'] = 'Cette activité s\'est terminée le {$a} et n\'est plus disponible';
 $string['export'] = 'Exporter';
 $string['exportaszip'] = 'Exporter en zip';
 $string['exportdatabase'] = 'Exporter des fiches';
@@ -208,6 +209,7 @@ $string['norecords'] = 'Aucune fiche dans la base de données';
 $string['nosingletemplate'] = 'Le modèle fiche n\'est pas encore défini';
 $string['notapproved'] = 'La fiche n\'est pas encore approuvée.';
 $string['notinjectivemap'] = 'N\'est pas une application injective';
+$string['notopenyet'] = 'Cette activité n\'est pas disponible avant le {$a}';
 $string['number'] = 'Nombre';
 $string['numberrssarticles'] = 'Fiches RSS';
 $string['numnotapproved'] = 'En attente';

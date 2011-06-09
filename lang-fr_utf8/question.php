@@ -1,4 +1,4 @@
-<?php // $Id: question.php,v 1.48 2009/11/25 17:54:30 martignoni Exp $
+<?php // $Id: question.php,v 1.49 2011/05/25 09:27:04 martignoni Exp $
 
 $string['adminreport'] = 'Rapport sur les problèmes possibles dans votre banque de questions.';
 $string['availableq'] = 'Disponible ?';
@@ -89,6 +89,8 @@ $string['errorsavingcomment'] = 'Erreur lors de l\'enregistrement dans la base d
 $string['errorupdatingattempt'] = 'Erreur lors de la mise à jour dans la base de données de la tentative $a->id.';
 $string['exportcategory'] = 'Exporter catégorie';
 $string['exporterror'] = 'Des erreurs sont survenues lors de l\'exportation !';
+$string['filecantmovefrom'] = 'Les fichiers de questions ne peuvent être déplacés, car vous n\'avez pas les autorisations de supprimer des fichiers de l\'endroit où sont stockés actuellement ces fichiers.';
+$string['filecantmoveto'] = 'Les fichiers de questions ne peuvent être déplacés ni copiés, car vous n\'avez pas les autorisations d\'ajouter des fichiers à l\'endroit où vous vouler les déplacer.';
 $string['filesareacourse'] = 'la zone des fichiers du cours';
 $string['filesareasite'] = 'la zone des fichiers du site';
 $string['filestomove'] = 'Déplacer / copier les fichiers vers {$a} ?';

@@ -1,17 +1,40 @@
 <?php
 
-/*
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+
+/**
+ * Peer Review assignment class extension
+ *
+ * @package    contrib
+ * @subpackage assignment_progress
+ * @copyright  2010 Michael de Raadt
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  * Notes about generic Assignment fields
  *
  *   assignment->var1 is used for reward value of each review
  *   assignment->var2 is used for optional self-reflection
  *   assignment->var3 is used to distinguish between submission of a file or online text
  *   submission->data1 is used for an online submission text (if that form of submission is chosen)
- *   
+ *
  */
 
 // Extend the base assignment class for peer review assignments
-class assignment_peerreview extends assignment_base { 
+class assignment_peerreview extends assignment_base {
 
     // File related constants
     const FILE_PREFIX = 'toReview';
@@ -47,7 +70,7 @@ class assignment_peerreview extends assignment_base {
     const ACCEPTABLE_COMMENT_LENGTH = 50; // characters
     const ACCEPTABLE_FLAG_RATE = 0.1;
     const ACCEPTABLE_CHECKED_RATE = 0.5;
-    
+
     // Status values
     const FLAGGED               = 0; // Moderation required
     const CONFLICTING           = 1; // Moderation required
@@ -78,7 +101,7 @@ class assignment_peerreview extends assignment_base {
     // The main view function
     function view() {
         global $USER, $CFG;
-        
+
         $context = get_context_instance(CONTEXT_MODULE,$this->cm->id);
         require_capability('mod/assignment:view', $context);
 		$teacher = has_capability('mod/assignment:grade', $context);
@@ -88,12 +111,12 @@ class assignment_peerreview extends assignment_base {
             $criteriaList = array_values($criteriaList);
 			$numberOfCriteria = count($criteriaList);
         }
-        
+
         if($teacher && $numberOfCriteria==0) {
             redirect($CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::CRITERIA_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id,0);
             return;
         }
-        
+
 		$submission = $this->get_submission();
 		$reviewsAllocated = get_records_select('assignment_review','assignment=\''.$this->assignment->id.'\' and reviewer=\''.$USER->id.'\' ORDER BY id ASC');
 		if(is_array($reviewsAllocated)) {
@@ -108,7 +131,7 @@ class assignment_peerreview extends assignment_base {
         add_to_log($this->course->id, "assignment", "view", "view.php?id={$this->cm->id}", $this->assignment->id, $this->cm->id);
 
         $this->view_header();
-		
+
 		//Determine what stage the student is up to and show progress
 		if(!$teacher) {
 
@@ -123,11 +146,11 @@ class assignment_peerreview extends assignment_base {
 				$this->print_progress_box('greyProgressBox','2',get_string('reviews','assignment_peerreview'),get_string('submitfirst','assignment_peerreview'));
 				$this->print_progress_box('greyProgressBox','3',get_string('feedback','assignment_peerreview'),get_string('notavailable','assignment_peerreview'));
 			}
-			
+
 			// Submitted
 			else {
 				$this->print_progress_box('greenProgressBox','1',get_string('submit','assignment_peerreview'),get_string('submitted','assignment_peerreview'));
-				
+
 				// Completing Reviews
 				if($numberOfReviewsCompleted<2) {
 					if($numberOfReviewsCompleted==1) {
@@ -140,10 +163,10 @@ class assignment_peerreview extends assignment_base {
 						else {
 							$this->print_progress_box('blueProgressBox','2',get_string('reviews','assignment_peerreview'),get_string('completereviewsbelow','assignment_peerreview'));
 						}
-					}				
+					}
 					$this->print_progress_box('greyProgressBox','3',get_string('feedback','assignment_peerreview'),get_string('notavailable','assignment_peerreview'));
 				}
-				
+
 				// Viewing feedback
 				else {
 					$this->print_progress_box('greenProgressBox','2',get_string('reviews','assignment_peerreview'),get_string('reviewscomplete','assignment_peerreview'));
@@ -161,22 +184,22 @@ class assignment_peerreview extends assignment_base {
 		// Completing Reviews
 		if(!$teacher && $submission && $numberOfReviewsAllocated==2 && $numberOfReviewsCompleted<2) {
 			print_box_start();
-            
+
 			// Allow review file to be downloaded
 			if($numberOfReviewsDownloaded == $numberOfReviewsCompleted) {
                 print_heading(get_string('reviewnumber','assignment_peerreview',$numberOfReviewsCompleted+1),"left");
 				if(isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
 					print_heading(get_string('gettheonlinetext','assignment_peerreview'),"left",3);
-					echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return openpopup(\'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&view=peerreview\', \'window'.($numberOfReviewsCompleted+1).'\', \'menubar=0,location=0,scrollbars,resizable,width=500,height=400\', 0);" target="window'.($numberOfReviewsCompleted+1).'" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&view=peerreview">'.get_string('clicktoview','assignment_peerreview').'</a>';
+					echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return openpopup(\'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&sesskey='.sesskey().'&view=peerreview\', \'window'.($numberOfReviewsCompleted+1).'\', \'menubar=0,location=0,scrollbars,resizable,width=500,height=400\', 0);" target="window'.($numberOfReviewsCompleted+1).'" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&view=peerreview">'.get_string('clicktoview','assignment_peerreview').'</a>';
 					print_heading(get_string('continuetoreview','assignment_peerreview'),"left",3);
 				}
 				else {
 					print_heading(get_string('getthedocument','assignment_peerreview'),"left",3);
 					require_once($CFG->libdir.'/filelib.php');
-					echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return true;" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::DOWNLOAD_PEERREVIEW_FILE.'/'.self::FILE_PREFIX.($numberOfReviewsCompleted+1).'.'.$this->assignment->fileextension.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&forcedownload=1"><img class="icon" src="'.$CFG->pixpath.'/f/'.mimeinfo('icon', 'blah.'.$this->assignment->fileextension).'" alt="'.get_string('clicktodownload','assignment_peerreview').'" />'.get_string('clicktodownload','assignment_peerreview').'</a>';
+					echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return true;" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::DOWNLOAD_PEERREVIEW_FILE.'/'.self::FILE_PREFIX.($numberOfReviewsCompleted+1).'.'.$this->assignment->fileextension.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&sesskey='.sesskey().'&forcedownload=1"><img class="icon" src="'.$CFG->pixpath.'/f/'.mimeinfo('icon', 'blah.'.$this->assignment->fileextension).'" alt="'.get_string('clicktodownload','assignment_peerreview').'" />'.get_string('clicktodownload','assignment_peerreview').'</a>';
 					print_heading(get_string('continuetoreviewdocument','assignment_peerreview'),"left",3);
 				}
-				
+
                 echo '<noscript>';
 				echo '<a href="view.php?id='.$this->cm->id.'">'.get_string('continue','assignment_peerreview').'</a>';
                 echo '</noscript>';
@@ -196,9 +219,9 @@ class assignment_peerreview extends assignment_base {
 
 			// Reviewing
 			else {
-			
+
 				// Save review
-				if($comment = clean_param(htmlspecialchars(optional_param('comment',NULL,PARAM_RAW)),PARAM_CLEAN)) {		
+				if($comment = clean_param(htmlspecialchars(optional_param('comment',NULL,PARAM_RAW)),PARAM_CLEAN)) {
                     print_heading(get_string('reviewnumber','assignment_peerreview',$numberOfReviewsCompleted+1));
 					notify(get_string('savingreview','assignment_peerreview'),'notifysuccess');
 					for($i=0; $i<$numberOfCriteria; $i++) {
@@ -214,7 +237,7 @@ class assignment_peerreview extends assignment_base {
 					$reviewToUpdate->timecompleted = time();
 					$reviewToUpdate->timemodified  = $reviewToUpdate->timecompleted;
 					update_record('assignment_review',$reviewToUpdate);
-					
+
 					// Send an email to student
 					$subject = get_string('peerreviewreceivedsubject','assignment_peerreview');
 					$linkToReview = $CFG->wwwroot.'/mod/assignment/view.php?id='.$this->cm->id;
@@ -225,14 +248,14 @@ class assignment_peerreview extends assignment_base {
 
 					redirect('view.php?id='.$this->cm->id, get_string('reviewsaved','assignment_peerreview'),1);
 				}
-				
+
 				// Show review form
 				else if($numberOfCriteria>0) {
-					echo '<div style="position:relative;">';			
+					echo '<div style="position:relative;">';
                     print_heading(get_string('reviewnumber','assignment_peerreview',$numberOfReviewsCompleted+1),'left');
 					echo '<div style="text-align:right;position:absolute;top:0;right:0">';
 					if(isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
-						echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return openpopup(\'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&view=peerreview\', \'window'.($numberOfReviewsCompleted+1).'\', \'menubar=0,location=0,scrollbars,resizable,width=500,height=400\', 0);" target="window'.($numberOfReviewsCompleted+1).'" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&view=peerreview">'.get_string('lostonlinetext','assignment_peerreview').'</a>';
+						echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return openpopup(\'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&sesskey='.sesskey().'&view=peerreview\', \'window'.($numberOfReviewsCompleted+1).'\', \'menubar=0,location=0,scrollbars,resizable,width=500,height=400\', 0);" target="window'.($numberOfReviewsCompleted+1).'" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&view=peerreview">'.get_string('lostonlinetext','assignment_peerreview').'</a>';
 					}
 					else {
 						require_once($CFG->libdir.'/filelib.php');
@@ -267,7 +290,7 @@ class assignment_peerreview extends assignment_base {
 			}
 			print_box_end();
 		}
-		
+
         // For early submitters waiting for reviews to be allocated
         else if(!$teacher && $submission && $numberOfReviewsAllocated==0) {
 			print_box_start();
@@ -276,7 +299,7 @@ class assignment_peerreview extends assignment_base {
 			echo '<table cellpadding="3">';
 			if(isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
 				echo '<tr><td><strong>'.get_string('submission','assignment_peerreview').': </strong></td><td>';
-				link_to_popup_window($CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&view=selfview');
+				link_to_popup_window($CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&sesskey='.sesskey().'&view=selfview');
 				echo '</td></tr>';
 			}
 			else {
@@ -301,26 +324,26 @@ class assignment_peerreview extends assignment_base {
 		else if(!$teacher && $submission && $numberOfReviewsCompleted==2) {
 			print_box_start();
 
-			// Find the reviews for this student 
+			// Find the reviews for this student
 			$reviews = $this->get_reviews_of_student($USER->id);
 			$numberOfReviewsOfThisStudent = 0;
 			if(is_array($reviews)) {
 				$numberOfReviewsOfThisStudent = count($reviews);
 			}
 			$status = $this->get_status($reviews,$numberOfCriteria);
-            
+
             // Table at top of page
 			echo '<table cellpadding="0" style="width:99%;"><tr><td style="width:50%;vertical-align:top;">';
-			
+
 			// Table about student submission
 			print_heading(get_string('yoursubmission','assignment_peerreview'),"left",1);
 			echo '<table cellpadding="3">';
 			echo '<tr><td><strong>'.get_string('grade','assignment_peerreview').': </strong></td><td>'.($submission->timemarked==0?get_string('notavailable','assignment_peerreview'):$this->display_grade($submission->grade)).'</td></tr>';
 			echo '<tr><td><strong>'.get_string('status').': </strong></td><td>';
 			switch($status) {
-				case self::FLAGGED:               
-				case self::CONFLICTING:           
-				case self::FLAGGEDANDCONFLICTING: 
+				case self::FLAGGED:
+				case self::CONFLICTING:
+				case self::FLAGGEDANDCONFLICTING:
 												  echo get_string('waitingforteacher','assignment_peerreview',$this->course->teacher); break;
 				case self::LESSTHANTWOREVIEWS:    echo get_string('waitingforpeers','assignment_peerreview'); break;
 				case self::CONCENSUS:             echo get_string('reviewconcensus','assignment_peerreview'); break;
@@ -329,7 +352,7 @@ class assignment_peerreview extends assignment_base {
 			echo '</td></tr>';
 			if(isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
 				echo '<tr><td><strong>'.get_string('submission','assignment_peerreview').': </strong></td><td>';
-				link_to_popup_window($CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&view=selfview');
+				link_to_popup_window($CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&sesskey='.sesskey().'&view=selfview');
 				echo '</td></tr>';
 			}
 			else {
@@ -341,7 +364,7 @@ class assignment_peerreview extends assignment_base {
 			echo '<tr><td><strong>'.get_string('submittedtime','assignment_peerreview').': </strong></td><td>'.userdate($submission->timecreated,get_string('strftimedaydatetime')).'</td></tr>';
 			echo '</table>';
 			echo '</td><td style="vertical-align:top;">';
-             
+
 			// Gather stats about student reviewing
             $reviewStats = $this->get_review_statistics();
             $reviewsByThisStudent = get_records_select('assignment_review','assignment=\''.$this->assignment->id.'\' AND reviewer=\''.$submission->userid.'\' AND complete=\'1\'');
@@ -395,7 +418,7 @@ class assignment_peerreview extends assignment_base {
                 print_string('good','assignment_peerreview');
             }
 			echo '</td></tr>';
-            
+
             // Comments made
 			echo '<tr><td><strong>'.get_string('reviewcomments','assignment_peerreview').': </strong></td><td>';
 			if($reviewStats->numberOfReviews < self::REVIEW_FEEDBACK_MIN) {
@@ -415,7 +438,7 @@ class assignment_peerreview extends assignment_base {
                 print_string('goodlength','assignment_peerreview');
             }
 			echo '</td></tr>';
-            
+
             // Accuracy
 			echo '<tr><td><strong>'.get_string('reviewaccuracy','assignment_peerreview').': </strong></td><td>';
 			if($comparableReviews < 1) {
@@ -434,8 +457,8 @@ class assignment_peerreview extends assignment_base {
                 echo ' ('.(int)($criterionMatchesWithInstructor/($comparableReviews*$numberOfCriteria)*100).'%)';
             }
             echo '</td></tr>';
-            
-            
+
+
 			echo '<tr><td><strong>'.get_string('flags','assignment_peerreview').': </strong></td><td>';
             if ($flags>=1) {
                 echo '<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/alert.gif" style="vertical-align:middle;" />&nbsp;';
@@ -446,13 +469,13 @@ class assignment_peerreview extends assignment_base {
             echo get_string('flags'.$flags,'assignment_peerreview').'</td></tr>';
 			echo '</table>';
 			echo '</td></tr></table>';
-			
+
 			echo '<p id="showDescription"><a href="#null" onclick="document.getElementById(\'hiddenDescription\').style.display=\'block\';document.getElementById(\'showDescription\').style.display=\'none\';">'.get_string('showdescription','assignment_peerreview').'</a></p>';
 			echo '<div id="hiddenDescription" style="display:none;">';
 			echo '<p><a href="#null" onclick="document.getElementById(\'hiddenDescription\').style.display=\'none\';document.getElementById(\'showDescription\').style.display=\'block\';">'.get_string('hidedescription','assignment_peerreview').'</a></p>';
 			$this->view_intro();
 			echo '</div>';
-			
+
 			// If reviews are available, show to student
 			if($reviews) {
 				print_heading(get_string('reviewsofyoursubmission','assignment_peerreview'),"left",1);
@@ -487,7 +510,7 @@ class assignment_peerreview extends assignment_base {
 					if($reviews[$numberOfReviewsOfThisStudent-$i-1]->teacherreview!=1) {
 						echo '<tr class="reviewDetailsRow"><td colspan="2"><em>';
 						echo $reviews[$numberOfReviewsOfThisStudent-$i-1]->flagged==1?get_string('flagprompt1','assignment_peerreview',$this->course->teacher).' ':get_string('flagprompt2','assignment_peerreview').' ';
-						$flagToggleURL = 'type/peerreview/'.self::TOGGLE_FLAG_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&r='.$reviews[$numberOfReviewsOfThisStudent-$i-1]->review;
+						$flagToggleURL = 'type/peerreview/'.self::TOGGLE_FLAG_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&r='.$reviews[$numberOfReviewsOfThisStudent-$i-1]->review.'&sesskey='.sesskey();
 						echo '<a href="'.$flagToggleURL.'" id="flag'.($numberOfReviewsOfThisStudent-$i-1).'">';
 						echo $reviews[$numberOfReviewsOfThisStudent-$i-1]->flagged==1?get_string('flaglink1','assignment_peerreview').'&nbsp;<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/flagRed.gif">':get_string('flaglink2','assignment_peerreview').'&nbsp;<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/flagGreen.gif">';
 						echo '</a>';
@@ -509,15 +532,15 @@ class assignment_peerreview extends assignment_base {
 			else {
 				echo '<p>'.get_string('noreviews','assignment_peerreview');
 			}
-			
+
 			print_box_end();
 		}
 
         // First page with description and criteria
-		else {		
+		else {
 			// Show description
 			$this->view_intro();
-			
+
 			// Show criteria
 			print_box_start();
             echo '<a name="criteria"></a>';
@@ -584,11 +607,11 @@ class assignment_peerreview extends assignment_base {
 
         /// Run some Javascript to try and update the parent page
         $output .= '<script type="text/javascript">'."\n<!--\n";
-		
+
         if (empty($SESSION->flextable['mod-assignment-submissions']->collapse['moderations'])) {
 			$moderationCountSQL = 'SELECT count(r.id) FROM '.$CFG->prefix.'assignment a, '.$CFG->prefix.'assignment_review r WHERE a.course='.$this->course->id.' AND a.id=r.assignment AND r.teacherreview=1 AND r.reviewee=\''.$submission->userid.'\'';
 			$moderationCount = count_records_sql($moderationCountSQL);
-			$moderations = ($moderationCount<$moderationtarget)?'<span class="errorStatus">'.$moderationCount.'</span>':$moderationCount;	
+			$moderations = ($moderationCount<$moderationtarget)?'<span class="errorStatus">'.$moderationCount.'</span>':$moderationCount;
             $output .= 'if(opener.document.getElementById(\'mo'.$submission->userid.'\')) {'."\n";
 			$output .= '    opener.document.getElementById(\'mo'.$submission->userid.'\').innerHTML=\''.$moderations."';\n";
             $output .= "}\n";
@@ -624,7 +647,7 @@ class assignment_peerreview extends assignment_base {
         }
 
         $output .= "\n-->\n</script>";
-		
+
         return $output;
     }
 
@@ -632,7 +655,7 @@ class assignment_peerreview extends assignment_base {
     // Directs calls from submissions.php to single pop-up window or submissions list
 	function submissions($mode) {
         global $CFG, $USER;
-		
+
         switch ($mode) {
             case 'grade':                         // We are in a popup window grading
                 if ($submission = $this->process_feedback()) {
@@ -679,10 +702,10 @@ class assignment_peerreview extends assignment_base {
 
     //--------------------------------------------------------------------------
     // Outputs the list of submissions with various details
-    function display_submissions($message='') { 
+    function display_submissions($message='') {
         global $CFG, $db, $USER;
         require_once($CFG->libdir.'/gradelib.php');
-        
+
         $CFG->stylesheets[] = $CFG->wwwroot . '/mod/assignment/type/peerreview/'.self::STYLES_FILE;
 
 		// Update preferences
@@ -708,7 +731,7 @@ class assignment_peerreview extends assignment_base {
         $page         = optional_param('page', 0, PARAM_INT);
 
         $reviewStats = $this->get_review_statistics();
-        
+
 		// Log this view
         add_to_log($course->id, 'assignment', 'view submission', 'submissions.php?id='.$this->assignment->id, $this->assignment->id, $this->cm->id);
 
@@ -718,7 +741,7 @@ class assignment_peerreview extends assignment_base {
                 '', '', true, update_module_button($cm->id, $course->id, $this->strassignment), navmenu($course, $cm));
 
         $this->print_peerreview_tabs('submissions');
-       
+
 		// Print optional message
         if (!empty($message)) {
             echo $message;   // display messages here if any
@@ -734,7 +757,7 @@ class assignment_peerreview extends assignment_base {
 		echo '<div style="text-align:center;margin:0 0 10px 0;">';
 		helpbutton('reviewallocation', get_string('reviewallocation','assignment_peerreview'), 'assignment/type/peerreview', true,true);
 		echo '</div>';
-        
+
         // Get all ppl that are allowed to submit assignments
         // if ($users = get_users_by_capability($context, 'mod/assignment:submit', 'u.id', '', '', '', $currentgroup, '', false)) {
         if ($users = get_users_by_capability($context, 'mod/assignment:submit', 'u.id')) {
@@ -745,7 +768,7 @@ class assignment_peerreview extends assignment_base {
         if ($users && $teachers = get_users_by_capability($context, 'mod/assignment:grade', 'u.id')) {
             $users = array_diff($users, array_keys($teachers));
         }
-		
+
 		// Warn if class is too small
 		if(count($users) < 5) {
 			notify(get_string('numberofstudentswarning','assignment_peerreview'));
@@ -776,7 +799,7 @@ class assignment_peerreview extends assignment_base {
         // $table->define_baseurl($CFG->wwwroot.'/mod/assignment/submissions.php?id='.$this->cm->id.'&amp;currentgroup='.$currentgroup);
         $table->define_baseurl($CFG->wwwroot.'/mod/assignment/submissions.php?id='.$this->cm->id);
         // $table->sortable(true, 'submitted');
-        $table->sortable(false);
+        $table->sortable(true);
         $table->collapsible(true);
         // $table->initialbars(true);
         $table->initialbars(false);
@@ -801,17 +824,15 @@ class assignment_peerreview extends assignment_base {
         $table->set_attribute('align', 'center');
         $table->column_style('submitted','text-align','left');
         $table->column_style('finalgrade','text-align','center');
-/*
+
 		$table->no_sorting('picture');
-		$table->no_sorting('fullname');
-		$table->no_sorting('submitted');
 		$table->no_sorting('reviews');
 		$table->no_sorting('moderations');
 		$table->no_sorting('status');
 		$table->no_sorting('seedoreviews');
 		$table->no_sorting('suggestedmark');
 		$table->no_sorting('finalgrade');
-*/		
+
         $table->setup();
 
         if (empty($users)) {
@@ -829,10 +850,13 @@ class assignment_peerreview extends assignment_base {
         $sql = 'FROM '.$CFG->prefix.'user u '.
                'LEFT JOIN '.$CFG->prefix.'assignment_submissions s ON u.id=s.userid AND s.assignment='.$this->assignment->id.' '.
                'WHERE '.$where.'u.id IN ('.implode(',',$users).') ';
-		$sort = 'ORDER BY COALESCE(submitted,2147483647) ASC, submissionid ASC, u.lastname ASC';
-        // if ($sort = $table->get_sql_sort()) {
-            // $sort = ' ORDER BY '.$sort;
-        // }
+        if ($sort = $table->get_sql_sort()) {
+            $sort = ' ORDER BY '.$sort;
+            $sort = str_replace('submitted', 'COALESCE(submitted,2147483647)', $sort);
+        }
+        else {
+            $sort = 'ORDER BY COALESCE(submitted,2147483647) ASC, submissionid ASC, u.lastname ASC';
+        }
 
         $table->pagesize($perpage, count($users));
 
@@ -865,7 +889,7 @@ class assignment_peerreview extends assignment_base {
 					$filearea = $this->file_area_name($auser->id);
 					$fileLink = '';
 					if (isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
-						$url = '/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&userid='.$auser->id.'&view=moderation';
+						$url = '/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&userid='.$auser->id.'&sesskey='.sesskey().'&view=moderation';
 						$fileLink .= '<a href="'.$CFG->wwwroot.$url.'" target="_blank" onclick="return openpopup(\''.$url.'\',\'\',\'menubar=0,location=0,scrollbars,resizable,width=500,height=400\');" title="'.get_string('clicktoview','assignment_peerreview').'"><img src="'.$CFG->pixpath.'/f/html.gif" /></a>';
 					}
 					else {
@@ -881,18 +905,18 @@ class assignment_peerreview extends assignment_base {
 					}
 
 					$submitted = '<div class="files" style="display:inline;">'.$fileLink.'</div><div style="display:inline;" id="tt'.$auser->id.'">'.userdate($auser->submitted,get_string('strftimeintable','assignment_peerreview')).'</div>';
-					$submitted .= ' <a href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::RESUBMIT_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&userid='.$auser->id.'">('.get_string('resubmitlabel','assignment_peerreview').')</a>';
-					
+					$submitted .= ' <a href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::RESUBMIT_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&userid='.$auser->id.'&sesskey='.sesskey().'">('.get_string('resubmitlabel','assignment_peerreview').')</a>';
+
 					// Reviews by student
 					$numberOfReviewsByThisStudent = 0;
 					if($reviewsByThisStudent = get_records_select('assignment_review','assignment=\''.$this->assignment->id.'\' AND reviewer=\''.$auser->id.'\' AND complete=\'1\'')) {
 						$numberOfReviewsByThisStudent = count($reviewsByThisStudent);
 						$reviewsByThisStudent = array_values($reviewsByThisStudent);
-						
+
 						$reviews  = '<div style="text-align:center;" id="re'.$auser->id.'">';
 						for($i=0; $i<$numberOfReviewsByThisStudent; $i++) {
 							$reviews .= '<span id="rev'.$reviewsByThisStudent[$i]->id.'"  style="padding:5px 2px;">';
-							$popup_url = '/mod/assignment/submissions.php?id='.$this->cm->id. '&amp;userid='.$reviewsByThisStudent[$i]->reviewee.'&amp;mode=single&amp;offset=1';
+							$popup_url = '/mod/assignment/submissions.php?id='.$this->cm->id. '&amp;userid='.$reviewsByThisStudent[$i]->reviewee.'&amp;mode=single&amp;offset=-1';
                             $buttonText = ''.($i+1);
                             $timeTakenReviewing = $reviewsByThisStudent[$i]->timecompleted - $reviewsByThisStudent[$i]->timedownloaded;
                             $commentLength = strlen($reviewsByThisStudent[$i]->reviewcomment);
@@ -917,8 +941,8 @@ class assignment_peerreview extends assignment_base {
 					else {
 						$reviews       = '<div id="re'.$auser->id.'">&nbsp;</div>';
                     }
-					
-					// Reviews of student 
+
+					// Reviews of student
 					$reviewsOfThisStudent = $this->get_reviews_of_student($auser->id);
 					$numberOfReviewsOfThisStudent = 0;
 					if(is_array($reviewsOfThisStudent)) {
@@ -927,10 +951,10 @@ class assignment_peerreview extends assignment_base {
 
 					$statusCode = $this->get_status($reviewsOfThisStudent,$numberOfCriteria);
                     $status  = '<div id="st'.$auser->id.'">'.$this->print_status($statusCode,true).'</div>';
-                    
+
 					$buttontext = get_string('review','assignment_peerreview');
 					$popup_url = '/mod/assignment/submissions.php?id='.$this->cm->id
-							   . '&amp;userid='.$auser->id.'&amp;mode=single'.'&amp;offset='.$offset++;
+							   . '&amp;userid='.$auser->id.'&amp;mode=single'.'&amp;offset='.$offset;
 					$button = element_to_popup_window ('button', $popup_url, 'grade'.$auser->id, $buttontext, 600, 780, $buttontext, 'none', true, 'reviewbutton'.$auser->id);
 					$seedoreviews  = '<div id="se'.$auser->id.'" style="text-align:center;padding:5px 0;"><span  id="seOutline'.$auser->id.'" class="s'.($statusCode<=3?'0':'1').'" style="padding:4px 1px;">'.$button.'</span></div>';
 					$seedoreviews .= '<script>';
@@ -950,7 +974,7 @@ class assignment_peerreview extends assignment_base {
 					$suggestedmark = '<div style="text-align:center;" id="su'.$auser->id.'">';
 					$suggestedMarkToDisplay = $this->get_marks($reviewsOfThisStudent,$criteriaList,$numberOfReviewsByThisStudent,$this->assignment->var1);
 					$suggestedmark .= '<input type="text" size="4" id="gvalue'.$auser->id.'" value="'.$suggestedMarkToDisplay.'" />';
-					$suggestedmark .= '<input type="button" value="'.get_string('set','assignment_peerreview').'" onclick="mark=parseInt(document.getElementById(\'gvalue'.$auser->id.'\').value); if(isNaN(mark)) {alert(\''.get_string('gradenotanumber','assignment_peerreview').'\'); return false;} else {popup_url=\'/mod/assignment/type/peerreview/'.self::SET_MARK_FILE.'?id='.$this->cm->id.'&amp;a='.$this->assignment->id.'&amp;userid='.$auser->id.'&amp;mark=\'+mark; return openpopup(popup_url, \'grade5\', \'menubar=0,location=0,scrollbars,resizable,width=400,height=300\', 0);}" />';
+					$suggestedmark .= '<input type="button" value="'.get_string('set','assignment_peerreview').'" onclick="mark=parseInt(document.getElementById(\'gvalue'.$auser->id.'\').value); if(isNaN(mark)) {alert(\''.get_string('gradenotanumber','assignment_peerreview').'\'); return false;} else {popup_url=\'/mod/assignment/type/peerreview/'.self::SET_MARK_FILE.'?id='.$this->cm->id.'&amp;a='.$this->assignment->id.'&amp;sesskey='.sesskey().'&amp;userid='.$auser->id.'&amp;mark=\'+mark; return openpopup(popup_url, \'grade5\', \'menubar=0,location=0,scrollbars,resizable,width=400,height=300\', 0);}" />';
 
 					$suggestedmark .= '</div>';
 
@@ -965,9 +989,9 @@ class assignment_peerreview extends assignment_base {
                     }
 					else {
 						$grade = '<div id="g'.$auser->id.'">'.get_string('notset','assignment_peerreview').'</div>';
-                    }				
+                    }
 				}
-				
+
 				// No submission made yet
 				else {
                     $submitted     = '<div id="tt'.$auser->id.'">&nbsp;</div>';
@@ -987,6 +1011,7 @@ class assignment_peerreview extends assignment_base {
 				// Add the row to the table
                 $row = array($picture, $studentName, $submitted, $reviews, $moderations, $status, $seedoreviews, $suggestedmark, $grade);
                 $table->add_data($row);
+                $offset++;
             }
         }
 
@@ -997,7 +1022,7 @@ class assignment_peerreview extends assignment_base {
         echo '<div style="margin:5px 10px;">';
         echo '<table id="optiontable" align="right">';
         echo '<tr><td colspan="2" align="right">';
-        echo '<form id="options" action="type/peerreview/'.self::MASS_MARK_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'" method="post">';
+        echo '<form id="options" action="type/peerreview/'.self::MASS_MARK_FILE.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&sesskey='.sesskey().'" method="post">';
 
         echo '<input type="submit" value="'.get_string('massmark','assignment_peerreview').'" />';
 		helpbutton('massmark',get_string('massmark','assignment_peerreview'),'assignment/type/peerreview/');
@@ -1034,7 +1059,7 @@ class assignment_peerreview extends assignment_base {
     // A single submission shown in a pop-up marking window
 	function display_submission($extra_javascript = '') {
         global $CFG;
-        
+
         require_once($CFG->libdir.'/gradelib.php');
         require_once($CFG->libdir.'/tablelib.php');
 
@@ -1070,7 +1095,7 @@ class assignment_peerreview extends assignment_base {
 			$numberOfReviewsOfThisStudent = count($reviews);
 		}
         $reviewStats = $this->get_review_statistics();
-		
+
         $grading_info = grade_get_grades($this->course->id, 'mod', 'assignment', $this->assignment->id, array($user->id));
         $disabled = $grading_info->items[0]->grades[$userid]->locked || $grading_info->items[0]->grades[$userid]->overridden;
 
@@ -1094,7 +1119,7 @@ class assignment_peerreview extends assignment_base {
 
         $nextid = 0;
 
-        if ($users) {
+        if ($users && $offset>=0) {
             $select = 'SELECT u.id, u.firstname, u.lastname, u.picture, u.imagealt,
                               s.id AS submissionid, s.grade, s.submissioncomment,
                               s.timecreated as submitted, s.timemarked as timemarked ';
@@ -1103,14 +1128,25 @@ class assignment_peerreview extends assignment_base {
                                                                       AND s.assignment = '.$this->assignment->id.' '.
                    'WHERE u.id IN ('.implode(',', $users).') ';
 
-			$sort = 'ORDER BY COALESCE(submitted,2147483647) ASC, submissionid ASC, u.lastname ASC';
-            // if ($sort = flexible_table::get_sql_sort('mod-assignment-submissions')) {
-                // $sort = 'ORDER BY '.$sort.' ';
-            // }
+            if ($sort = flexible_table::get_sql_sort('mod-assignment-peerreview-submissions')) {
+                $sort = ' ORDER BY '.$sort;
+                $sort = str_replace('submitted', 'COALESCE(submitted,2147483647)', $sort);
+            }
+            else {
+                $sort = 'ORDER BY COALESCE(submitted,2147483647) ASC, submissionid ASC, u.lastname ASC';
+            }
 
-            if (($auser = get_records_sql($select.$sql.$sort, $offset+1, 1)) !== false) {
+            // Find the next user who has submitted
+            if (($auser = get_records_sql($select.$sql.$sort, $offset+1)) !== false) {
+            
                 $nextuser = array_shift($auser);
+                $offset++;
                 
+                while($nextuser && !$nextuser->submitted) {
+                    $nextuser = array_shift($auser);
+                    $offset++;
+                }
+
                 // Calculate user status
                 if($nextuser && $nextuser->submitted) {
                     $nextuser->status = ($nextuser->timemarked > 0);
@@ -1175,22 +1211,22 @@ class assignment_peerreview extends assignment_base {
 
 		echo get_string('moderations','assignment_peerreview').': ';
         if($moderationCount<$moderationtarget) {
-            echo '<span class="errorStatus">'.$moderationCount.' ('.get_string('moderationtargetnotmet','assignment_peerreview').')</span>';	
+            echo '<span class="errorStatus">'.$moderationCount.' ('.get_string('moderationtargetnotmet','assignment_peerreview').')</span>';
         }
-        else {   
+        else {
             echo $moderationCount;
         }
         echo '</div>';
         echo '<div class="reviewDetailsRow">';
 		echo get_string('status').': ';
-		$statusCode = $this->get_status($reviews,$numberOfCriteria); 
+		$statusCode = $this->get_status($reviews,$numberOfCriteria);
 		$this->print_status($statusCode);
 		echo $statusCode<=3?' ('.get_string('moderationrequired','assignment_peerreview').')':'';
         echo '</div>';
         echo '</div>';
-		
+
 		if (isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
-			$url = '/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&userid='.$user->id.'&view=moderation';
+			$url = '/mod/assignment/type/peerreview/'.self::VIEW_ONLINE_TEXT.'?id='.$this->cm->id.'&a='.$this->assignment->id.'&userid='.$user->id.'&sesskey='.sesskey().'&view=moderation';
 			echo '<div class="files"><a href="'.$CFG->wwwroot.$url.'" target="_blank" onclick="return openpopup(\''.$url.'\',\'submission\',\'menubar=0,location=0,scrollbars,resizable,width=500,height=400\');"><img src="'.$CFG->pixpath.'/f/html.gif" />'.get_string('submission','assignment_peerreview').'</a></div>';
 		}
 		else {
@@ -1198,13 +1234,13 @@ class assignment_peerreview extends assignment_base {
 		}
         echo '</td>';
         echo '</tr>';
-		
+
         ///Start of marking row
         echo '<tr>';
         echo '<td colspan="2" style="padding:2px;">';
         echo '<form id="submitform" action="submissions.php" method="post">';
         echo '<div>'; // xhtml compatibility - invisiblefieldset was breaking layout here
-        echo '<input type="hidden" name="offset" value="'.($offset+1).'" />';
+        echo '<input type="hidden" name="offset" value="'.($offset).'" />';
         echo '<input type="hidden" name="userid" value="'.$userid.'" />';
         echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
         echo '<input type="hidden" name="timeLoaded" value="'.time().'" />';
@@ -1213,7 +1249,7 @@ class assignment_peerreview extends assignment_base {
 //        echo '<input type="hidden" name="menuindex" value="0" />';//selected menu index
         echo '<input type="hidden" name="saveuserid" value="-1" />';
         echo '<input type="hidden" name="savePrev" value="0" />';
-				
+
 		echo '<table width="99%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">';
 		echo '<tr>';
 		for($i=0; $i<$numberOfReviewsOfThisStudent; $i++) {
@@ -1327,6 +1363,7 @@ class assignment_peerreview extends assignment_base {
         echo '<input type="hidden" name="id" value="'.$this->cm->id.'">';
         echo '<input type="hidden" name="a" value="'.$this->assignment->id.'">';
         echo '<input type="hidden" name="comments" id="comments" value="">';
+        echo '<input type="hidden" name="sesskey" value="'.sesskey().'">';
         echo '</form>';
 
         $customfeedback = $this->custom_feedbackform($submission, true);
@@ -1376,7 +1413,7 @@ class assignment_peerreview extends assignment_base {
 			echo '</div>';
 		}
     }
-	
+
     //--------------------------------------------------------------------------
     // Creates a review object to be filled for use and DB storage
     function prepare_new_review($reviewer,$reviewee) {
@@ -1397,9 +1434,9 @@ class assignment_peerreview extends assignment_base {
 
     //--------------------------------------------------------------------------
     // Upload and process a submission
-    function upload() {       
+    function upload() {
         global $CFG, $USER;
-        
+
 		$NUM_REVIEWS = 2;
 		$POOL_SIZE = 2*$NUM_REVIEWS+1; // including current submitter
         require_capability('mod/assignment:submit', get_context_instance(CONTEXT_MODULE, $this->cm->id));
@@ -1409,7 +1446,7 @@ class assignment_peerreview extends assignment_base {
             if(!record_exists('assignment_submissions','assignment',$this->assignment->id,'userid',$USER->id)) {
 
 				$newsubmission = NULL;
-				
+
 				// Process online text
 				if(isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
 					$newsubmission = $this->prepare_new_submission($USER->id);
@@ -1417,14 +1454,14 @@ class assignment_peerreview extends assignment_base {
 					$sumbissionName = get_string('yoursubmission','assignment_peerreview');
 					// echo '<pre>'.print_r($_POST,true).'</pre>';
 				}
-				
+
 				// Process submitted document
 				else {
 					$dir = $this->file_area_name($USER->id);
 					require_once($CFG->dirroot.'/lib/uploadlib.php');
 					$um = new upload_manager('newfile',true,false,$this->course,false,$this->assignment->maxbytes);
 					if($um->preprocess_files()) {
-					
+
 						//Check the file extension
 						$submittedFilename = $um->get_original_filename();
 						$extension = $this->assignment->fileextension;
@@ -1438,14 +1475,14 @@ class assignment_peerreview extends assignment_base {
 						}
 					}
 				}
-				
+
 				if($newsubmission) {
 
 					// Enter submission into DB and log
 					$newsubmission->timecreated = time();
 					$newsubmission->timemodified = time();
 					if (insert_record('assignment_submissions', $newsubmission)) {
-						add_to_log($this->course->id, 'assignment', 'upload', 
+						add_to_log($this->course->id, 'assignment', 'upload',
 								'view.php?a='.$this->assignment->id, $this->assignment->id, $this->cm->id);
 						// $this->email_teachers($newsubmission);
 						print_heading(get_string('uploadedfile'));
@@ -1477,7 +1514,7 @@ class assignment_peerreview extends assignment_base {
 							for($j=1; $j<=$NUM_REVIEWS; $j++) {
 								insert_record('assignment_review',$this->prepare_new_review($recentSubmissions[$i]->userid,$recentSubmissions[$i-2*$j+($i-2*$j>=0?0:$NUM_REVIEWS*2+1)]->userid));
 							}
-							
+
 							// Send an email to student
 							$subject = get_string('reviewsallocatedsubject','assignment_peerreview');
 							$linkToReview = $CFG->wwwroot.'/mod/assignment/view.php?id='.$this->cm->id;
@@ -1514,7 +1551,7 @@ class assignment_peerreview extends assignment_base {
     // Type specific config elements added to assignment config page
     function setup_elements(&$mform) {
         global $CFG, $COURSE;
-        
+
         // Get extra settings
         if($update = optional_param('update', 0, PARAM_INT)) {
             if (! $cm = get_record("course_modules", "id", $update)) {
@@ -1525,8 +1562,8 @@ class assignment_peerreview extends assignment_base {
 				$mform->addElement('html','<div style="color:#ff6600;background:#ffff00;margin:5px 20px;padding:5px;text-align:center;font-weight:bold;">'.get_string('settingschangewarning','assignment_peerreview').'</div>');
 			}
         }
-		
-            
+
+
 		// Submission format
 		$submissionFormats = array();
 		$submissionFormats[self::SUBMIT_DOCUMENT] = get_string('submissionformatdocument','assignment_peerreview');
@@ -1556,7 +1593,7 @@ class assignment_peerreview extends assignment_base {
 			}
 		}
 		ksort($fileExtensions,SORT_STRING);
-		
+
 		// File type restrinction
 		$attributes=array('style'=>'font-family:monospace;width:99%;');
 		$mform->addElement('select', 'fileextension', get_string('fileextension', 'assignment_peerreview'), $fileExtensions, $attributes);
@@ -1572,26 +1609,26 @@ class assignment_peerreview extends assignment_base {
         $mform->addElement('select', 'var1', get_string('valueofreview', 'assignment_peerreview'), $options);
         $mform->setDefault('var1', '10');
 		$mform->setHelpButton('var1', array('valueofreview', get_string('valueofreview', 'assignment_peerreview'), 'assignment/type/peerreview/'));
-		
+
 		// Practice Review
 		// $mform->addElement('selectyesno', 'var2', get_string('practicereview', 'assignment_peerreview'));
         // $mform->setDefault('var2', 'no');
         // $mform->setAdvanced('var2');
     }
-    
+
     function add_instance($assignment) {
         $assignment_extra = new Object();
         $assignment_extra->fileextension = $assignment->fileextension;
         $assignment_extra->savedcomments = '';
         unset($assignment->fileextension);
         unset($assignment->savedcomments);
-        
+
         $newid = parent::add_instance($assignment);
 
         if ($newid) {
             $assignment_extra->assignment = $newid;
             insert_record('assignment_peerreview', $assignment_extra);
-          
+
         }
 
         return $newid;
@@ -1602,7 +1639,7 @@ class assignment_peerreview extends assignment_base {
         unset($assignment->fileextension);
 
         $retval = parent::update_instance($assignment);
-        
+
         if ($retval) {
             $assignment_extra = get_record('assignment_peerreview', 'assignment', $assignment->id);
             $assignment_extra->fileextension = $fileextension;
@@ -1612,7 +1649,7 @@ class assignment_peerreview extends assignment_base {
 
         return $retval;
     }
-	
+
     //--------------------------------------------------------------------------
     // Cleans up database entries for a deleted assignment
     function delete_instance($assignment) {
@@ -1629,24 +1666,24 @@ class assignment_peerreview extends assignment_base {
         )) {
             $result = false;
         }
-        
+
         // Delete reviews
         if (! delete_records('assignment_review', 'assignment', $assignment->id)) {
             $result = false;
         }
-        
+
         // Delete criteria settings
         if (! delete_records('assignment_criteria', 'assignment', $assignment->id)) {
             $result = false;
         }
-        
+
         // Delete extra settings
         if (! delete_records('assignment_peerreview', 'assignment', $assignment->id)) {
             $result = false;
         }
-        
+
         $retval = parent::delete_instance($assignment);
-        
+
         return $retval && $result;
     }
 
@@ -1662,7 +1699,7 @@ class assignment_peerreview extends assignment_base {
         }
 
         $CFG->stylesheets[] = $CFG->wwwroot . '/mod/assignment/type/peerreview/'.self::STYLES_FILE;
-        
+
         print_header($this->pagetitle, $this->course->fullname, $navigation, '', '',
                      true, update_module_button($this->cm->id, $this->course->id, $this->strassignment),
                      navmenu($this->course, $this->cm));
@@ -1676,17 +1713,17 @@ class assignment_peerreview extends assignment_base {
             // Help on student view
             echo '<div style="text-align:center;margin:0 0 10px 0;">';
             helpbutton('whatdostudentsseeview', get_string('whatdostudentssee','assignment_peerreview'), 'assignment/type/peerreview', true,true);
-            echo '</div>';      
-            
+            echo '</div>';
+
 		}
     }
-		
+
     //--------------------------------------------------------------------------
     // Process and save feedback from a teacher moderation
     function process_feedback() {
         global $CFG, $USER;
         require_once($CFG->libdir.'/gradelib.php');
-		
+
         if (!$feedback = data_submitted() or !confirm_sesskey()) {      // No incoming data?
             return false;
         }
@@ -1709,10 +1746,10 @@ class assignment_peerreview extends assignment_base {
         if (optional_param('timeLoaded') != get_user_preferences('assignment_lastSaved', -1) &&
             !$grading_info->items[0]->grades[$feedback->userid]->locked &&
             !$grading_info->items[0]->grades[$feedback->userid]->overridden) {
-	
+
             // Set time to prevent re-save
             set_user_preference('assignment_lastSaved', optional_param('timeLoaded'));
-    
+
 			// Get pre-existing reviews for the student
 			if(optional_param('savePrev',false,PARAM_BOOL)) {
 				if($reviews = get_records_select('assignment_review','assignment=\''.$this->assignment->id.'\' AND reviewee=\''.$feedback->userid.'\' ORDER BY id ASC')){
@@ -1722,12 +1759,12 @@ class assignment_peerreview extends assignment_base {
 					foreach($reviews as $reviewID=>$review) {
 						for($i=0; $i<$numberOfCriteria; $i++) {
 							set_field('assignment_review_criterion','checked',optional_param('checked'.$reviewID.'crit'.$i,0,PARAM_BOOL),'review',$reviewID,'criterion',$i);
-						}	
+						}
 						set_field('assignment_review','reviewcomment',clean_param(htmlspecialchars(optional_param('preExistingComment'.$reviewID,NULL,PARAM_RAW)),PARAM_CLEAN),'id',$reviewID);
 					}
 				}
 			}
-						
+
 			// Add the new review
 			else {
 				$review = $this->prepare_new_review($USER->id,$feedback->userid);
@@ -1743,7 +1780,7 @@ class assignment_peerreview extends assignment_base {
 					$criterionToSave->checked = optional_param('newChecked'.$i,0,PARAM_BOOL);
 					insert_record('assignment_review_criterion',$criterionToSave);
 				}
-				
+
 				// Send an email to student
 				$subject = get_string('teacherreviewreceivedsubject','assignment_peerreview',$this->course->teacher);
 				$linkToReview = $CFG->wwwroot.'/mod/assignment/view.php?id='.$this->cm->id;
@@ -1752,15 +1789,15 @@ class assignment_peerreview extends assignment_base {
                 $messageHTML = nl2br($message).'<a href="'.$linkToReview.'" target="_blank">'.get_string('teacherreviewreceivedlinktext','assignment_peerreview').'</a>';
 				$this->email_from_teacher($this->course->id, $feedback->userid, $subject, $messageText, $messageHTML);
 			}
-			
-			// set_field('assignment_submissions','timemodified',time(),'id',$submission->id);			
+
+			// set_field('assignment_submissions','timemodified',time(),'id',$submission->id);
             add_to_log($this->course->id, 'assignment', 'update grades',
                        'submissions.php?id='.$this->assignment->id.'&user='.$feedback->userid, $feedback->userid, $this->cm->id);
         }
 
         return $submission;
     }
-	
+
     //--------------------------------------------------------------------------
     // Sets a grade for a student
 	function set_grade($userid, $grade) {
@@ -1787,34 +1824,34 @@ class assignment_peerreview extends assignment_base {
         $messageHTML = nl2br($message).'<a href="'.$linkToReview.'" target="_blank">'.get_string('gradesetlink','assignment_peerreview').'</a>';
 		$submission->mailed = $this->email_from_teacher($this->course->id, $userid, $subject, $messageText, $messageHTML);
         set_field('assignment_submissions','mailed',$submission->mailed,'id',$submission->id);
-		
+
 		// triger grade event
 		$this->update_grade($submission);
 		add_to_log($this->course->id, 'assignment', 'update grades', 'submissions.php?id='.$this->assignment->id.'&user='.$userid, $userid, $this->cm->id);
 		return $submission;
 	}
-	
+
     //--------------------------------------------------------------------------
     // Sets all unset calculatable grades
 	function mass_grade() {
 		global $CFG;
-	
+
 		require_once($CFG->dirroot.'/config.php');
 		require_once($CFG->libdir.'/gradelib.php');
         require_once($CFG->libdir.'/tablelib.php');
         $CFG->stylesheets[] = $CFG->wwwroot . '/mod/assignment/type/peerreview/'.self::STYLES_FILE;
-    
+
         $navigation = build_navigation($this->strsubmissions, $this->cm);
         print_header_simple(format_string($this->assignment->name,true), "", $navigation,
                 '', '', true, update_module_button($this->cm->id, $this->course->id, $this->strassignment), navmenu($this->course, $this->cm));
 		print_heading(get_string('settingmarks','assignment_peerreview'),1);
 		echo '<div style="text-align:center;margin:0 0 10px 0;">';
-		
+
         // Get submissions with reviews so that grades can be set
         $criteriaList = get_records_list('assignment_criteria','assignment',$this->assignment->id,'ordernumber');
 		if($criteriaList && count($criteriaList)>0) {
             $criteriaList = array_values($criteriaList);
-            $query = 'SELECT a.userid, SUM(r.complete) as reviewscomplete, a.timemarked, a.timecreated, a.id, u.firstname, u.lastname '. 
+            $query = 'SELECT a.userid, SUM(r.complete) as reviewscomplete, a.timemarked, a.timecreated, a.id, u.firstname, u.lastname '.
                      'FROM '.$CFG->prefix.'assignment_submissions a, '.$CFG->prefix.'assignment_review r, '.$CFG->prefix.'user u '.
                      'WHERE a.assignment='.$this->assignment->id.' '.
                      'AND r.assignment='.$this->assignment->id.' '.
@@ -1849,8 +1886,8 @@ class assignment_peerreview extends assignment_base {
                 $table->column_style_all('padding', '5px 10px');
                 $table->column_style_all('text-align','left');
                 $table->setup();
-        
-                // Build table of submissions as they are marked              
+
+                // Build table of submissions as they are marked
                 for($i=0; $i<$numberOfSubmissions; $i++) {
                     $name = fullname($submissions[$i]);
                     $grading_info = grade_get_grades($this->course->id, 'mod', 'assignment', $this->assignment->id, $submissions[$i]->userid);
@@ -1909,7 +1946,7 @@ class assignment_peerreview extends assignment_base {
         $teacherReviewIndex = $numberOfReviewsOfThisStudent-1;
         $marks = 0;
         $statusCode = $this->get_status($reviews,$numberOfCriteria);
-        
+
         if($statusCode<=3) {
             return '???';
         }
@@ -1925,7 +1962,7 @@ class assignment_peerreview extends assignment_base {
                 }
             }
         }
-        
+
         if($statusCode == self::CONCENSUS) {
 
             for($i=0; $i<$numberOfCriteria; $i++) {
@@ -1963,25 +2000,25 @@ class assignment_peerreview extends assignment_base {
         $flagged = false;
         $conflicting = false;
         $overridden = false;
-        
+
         for($i=0; $i<$numberOfReviewsOfThisStudent && !$overridden; $i++) {
             $overridden = $reviews[$i]->teacherreview==1;
             $flagged = $flagged || $reviews[$i]->flagged==1;
         }
-        
+
         if($overridden) {
             return self::OVERRIDDEN;
         }
         if($numberOfReviewsOfThisStudent<2) {
             return self::LESSTHANTWOREVIEWS;
         }
-        
+
         for($i=0; $i<$numberOfCriteria && !$conflicting; $i++) {
             for($j=0; $j<$numberOfReviewsOfThisStudent-1 && !$conflicting; $j++) {
                 $conflicting = $reviews[$j]->{'checked'.$i} != $reviews[$j+1]->{'checked'.$i};
             }
         }
-        
+
         if($flagged && $conflicting) {
             return self::FLAGGEDANDCONFLICTING;
         }
@@ -2050,8 +2087,8 @@ class assignment_peerreview extends assignment_base {
         $student = get_record('user','id',$studentID);
         return email_to_user($student, $course->teacher.': '.$course->shortname, $course->shortname.': '.$subject, $messageText, $messageHTML);
     }
-    
-    
+
+
     //------------------------------------------------------------------------------
     // Backup assignment config not in assignment table
     function backup_one_mod($bf, $preferences, $assignment) {
@@ -2155,7 +2192,13 @@ class assignment_peerreview extends assignment_base {
                 $revRecord = new stdclass;
                 $revRecord->assignment                 = $submission->assignment;
                 $revRecord->reviewer                   = backup_todb($review['#']['REVIEWER']['0']['#']);
+                if ($user = backup_getid($restore->backup_unique_code, 'user', $revRecord->reviewer)) {
+                     $revRecord->reviewer = $user->new_id;
+                }
                 $revRecord->reviewee                   = backup_todb($review['#']['REVIEWEE']['0']['#']);
+                if ($user = backup_getid($restore->backup_unique_code, 'user', $revRecord->reviewee)) {
+                    $revRecord->reviewee = $user->new_id;
+                }
                 $revRecord->timeallocated              = backup_todb($review['#']['TIMEALLOCATED']['0']['#']);
                 $revRecord->timemodified               = backup_todb($review['#']['TIMEMODIFIED']['0']['#']);
                 $revRecord->downloaded                 = backup_todb($review['#']['DOWNLOADED']['0']['#']);
@@ -2182,7 +2225,7 @@ class assignment_peerreview extends assignment_base {
         }
         return true;
     }
-    
+
     //------------------------------------------------------------------------------
     // Calculates statistics relating to reviewing
     function get_review_statistics() {
@@ -2207,7 +2250,7 @@ class assignment_peerreview extends assignment_base {
         $stats->commentLengthOutlierLowerBoundary = 0;
         $stats->commentLengthOutlierUpperBoundary = 0;
         $stats->minCommentLength = PHP_INT_MAX; // characters
-        $stats->maxCommentLength = 0; // characters        
+        $stats->maxCommentLength = 0; // characters
         $stats->flags = 0;
         $stats->flagRate = 0;
         $stats->numberOfReviewsViewed = 0;
@@ -2344,7 +2387,7 @@ class assignment_peerreview extends assignment_base {
             $stats->minReviewTime = 0;
             $stats->minCommentLength = 0;
         }
-        
+
         return $stats;
     }
 
@@ -2352,7 +2395,7 @@ class assignment_peerreview extends assignment_base {
     // Calculates statistics relating to criteria
     function get_criteria_statistics() {
         $stats = array();
-        
+
         // Get the criteria
 		$criteria = get_records_list('assignment_criteria','assignment',$this->assignment->id,'ordernumber');
 		$numberOfCriteria = 0;
@@ -2367,7 +2410,7 @@ class assignment_peerreview extends assignment_base {
             $stats[$i]->textshownatreview = $criteria[$i]->textshownatreview;
             $stats[$i]->textshownwithinstructions = $criteria[$i]->textshownwithinstructions;
         }
-        
+
         // Review checked stats
         $numberOfReviews = 0;
         if($reviews = get_records_select('assignment_review', 'assignment=\''.$this->assignment->id.'\' AND teacherreview=\'0\' AND complete=\'1\'','id')) {
@@ -2385,8 +2428,8 @@ class assignment_peerreview extends assignment_base {
         // Review checked rate calculations
         for($i=0; $i<$numberOfCriteria; $i++) {
             $stats[$i]->rate = $numberOfReviews==0 ? 0 : ($stats[$i]->count / $numberOfReviews);
-        }            
-        
+        }
+
         return $stats;
     }
 
@@ -2394,7 +2437,7 @@ class assignment_peerreview extends assignment_base {
     // Calculates statistics relating to submissions
     function get_submission_statistics() {
         global $CFG;
-    
+
         $stats = new Object;
         $stats->numberOfStudents = 0;
         $stats->numberOfSubmissions = 0;
@@ -2402,7 +2445,7 @@ class assignment_peerreview extends assignment_base {
         $stats->totalWaitForFeedback = 0; // seconds
         $stats->averageWaitForFeedback = 0; // seconds
         $stats->medianWaitForFeedback = 0; // seconds
-        
+
         // Get all ppl that are allowed to submit assignments
         $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
         if ($users = get_users_by_capability($context, 'mod/assignment:submit', 'u.id')) {
@@ -2412,7 +2455,7 @@ class assignment_peerreview extends assignment_base {
                 $stats->numberOfStudents = count($users);
             }
         }
-        
+
         // Get the number of submissions and rate
         $stats->numberOfSubmissions = count_records('assignment_submissions','assignment',$this->assignment->id);
         $stats->submissionRate = $stats->numberOfSubmissions==0?0:$stats->numberOfSubmissions/$stats->numberOfStudents;
@@ -2447,7 +2490,7 @@ class assignment_peerreview extends assignment_base {
     // Print tabs at top of page
     function print_peerreview_tabs($current='description') {
         global $CFG;
-    
+
 		$tabs = array();
 		$row  = array();
 		$row[] = new tabobject('description', $CFG->wwwroot.'/mod/assignment/'.self::VIEW_FILE."?id=".$this->cm->id, get_string('description'));
@@ -2465,7 +2508,7 @@ class assignment_peerreview extends assignment_base {
 
         require_once($CFG->libdir.'/tablelib.php');
         $CFG->stylesheets[] = $CFG->wwwroot . '/mod/assignment/type/peerreview/'.self::STYLES_FILE;
-	
+
         $navigation = build_navigation(get_string('analysis','assignment_peerreview'), $this->cm);
         print_header_simple(format_string($this->assignment->name,true), "", $navigation,
                 '', '', true, update_module_button($this->cm->id, $this->course->id, $this->strassignment), navmenu($this->course, $this->cm));
@@ -2474,7 +2517,7 @@ class assignment_peerreview extends assignment_base {
 		// Help on peer review benefits
 		echo '<div style="text-align:center;margin:0 0 10px 0;">';
 		helpbutton('benefitsofpeerreview', get_string('benefitsofpeerreview','assignment_peerreview'), 'assignment/type/peerreview', true,true);
-        
+
         // Submission stats table
         $table = new flexible_table('mod-assignment-peerreview-submission-stats');
         $tablecolumns = array('statistic', 'value');
@@ -2501,7 +2544,7 @@ class assignment_peerreview extends assignment_base {
         $label = get_string('analysislabelnumberofstudents','assignment_peerreview');
         $value = $submissionStats->numberOfStudents;
         $table->add_data(array($label,$value));
-        
+
         $label = get_string('analysislabelnumberofsubmissions','assignment_peerreview');
         $value = $submissionStats->numberOfSubmissions;
         $table->add_data(array($label,$value));
@@ -2519,8 +2562,8 @@ class assignment_peerreview extends assignment_base {
         $table->add_data(array($label,$value));
 
         $table->print_html();
-        
-        
+
+
         // Review stats table
         $table = new flexible_table('mod-assignment-peerreview-review-stats');
         $tablecolumns = array('statistic', 'value', 'hints');
@@ -2586,12 +2629,12 @@ class assignment_peerreview extends assignment_base {
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time($reviewStats->minReviewTime);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
-        
+
         $label = get_string('analysislabelmaxreview','assignment_peerreview');
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':format_time($reviewStats->maxReviewTime);
         $hints = '';
         $table->add_data(array($label,$value,$hints));
-        
+
         $label = get_string('analysislabelnormalisedaveragecomment','assignment_peerreview');
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)$reviewStats->normalisedAverageCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
@@ -2615,17 +2658,17 @@ class assignment_peerreview extends assignment_base {
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->minCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
         $table->add_data(array($label,$value,$hints));
-        
+
         $label = get_string('analysislabelmaxcomment','assignment_peerreview');
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->maxCommentLength.' '.get_string('characters','assignment_peerreview');
         $hints = '';
         $table->add_data(array($label,$value,$hints));
-        
+
         $label = get_string('analysislabelflags','assignment_peerreview');
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':$reviewStats->flags;
         $hints = '';
         $table->add_data(array($label,$value,$hints));
-        
+
         $label = get_string('analysislabelflagrate','assignment_peerreview');
         $value = $reviewStats->numberOfReviews<self::REVIEW_FEEDBACK_MIN?'':(int)($reviewStats->flagRate*100).'%';
         $hints = '';
@@ -2634,7 +2677,7 @@ class assignment_peerreview extends assignment_base {
             $hints .= get_string('adviceflagrate','assignment_peerreview');
         }
         $table->add_data(array($label,$value,$hints));
-        
+
         $label = get_string('analysislabelmoderations','assignment_peerreview');
         $value = $reviewStats->numberOfModerations;
         $hints = '';
@@ -2737,7 +2780,7 @@ class assignment_peerreview extends assignment_base {
         $table->column_style('checkedrate','text-align','center');
         $table->column_style('advice','text-align','left');
         $table->setup();
-        
+
         $criteriaStats = $this->get_criteria_statistics();
 
         print_heading(get_string('analysislabelcriteria','assignment_peerreview'),"center",2);
@@ -2754,13 +2797,13 @@ class assignment_peerreview extends assignment_base {
             }
             $table->add_data(array($criterionText, $criterionCount, $criterionRate, $hint));
         }
-        
+
         $table->print_html();
-        
-		echo '</div>';      
+
+		echo '</div>';
 		$this->view_footer();
 	}
-} 
+}
 
 require_once($CFG->libdir.'/formslib.php');
 
@@ -2797,5 +2840,3 @@ class mod_assignment_peerreview_edit_form extends moodleform {
         $mform->addElement('submit', 'submitbutton', get_string('submit'),$warning);
     }
 }
-
-?>

@@ -19,3 +19,4 @@
 - Added Spanish translation
 - Catalan translation
 - Added feedback attention stats
+- Allowed reordering by name

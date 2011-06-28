@@ -10,13 +10,7 @@ Improve logging
 
 Factorise code
 
-Follow compliance guidelines
-
-Prepare for Moodle 2.0
-
 Allow "accidental" teacher reviews to be deleted.
-
-Allow table ordering other than submission order.
 
 ---
 

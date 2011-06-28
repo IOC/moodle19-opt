@@ -1,4 +1,4 @@
-<?php  // $Id: lib.php,v 1.20.2.13 2011/02/08 20:21:45 mchurch Exp $
+<?php  // $Id: lib.php,v 1.20.2.15 2011/06/16 18:27:58 mchurch Exp $
 
 require_once('locallib.php');
 
@@ -363,8 +363,12 @@ function questionnaire_grade_item_update($questionnaire, $grades=NULL) {
         $params['gradetype'] = GRADE_TYPE_SCALE;
         $params['scaleid']   = -$questionnaire->grade;
 
+    } else if ($questionnaire->grade == 0) { //No Grade..be sure to delete the grade item if it exists
+        $grades = NULL;
+        $params = array('deleted' => 1);
+
     } else {
-        $params['gradetype'] = GRADE_TYPE_TEXT; // allow text comments only
+        $params = NULL; // allow text comments only
     }
 
     if ($grades  === 'reset') {

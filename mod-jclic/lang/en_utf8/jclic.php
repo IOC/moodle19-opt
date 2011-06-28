@@ -1,4 +1,4 @@
-<?PHP // $Id: jclic.php,v 1.3 2009/10/23 12:37:49 sarjona Exp $
+<?PHP // $Id: jclic.php,v 1.4 2011-05-25 12:13:03 sarjona Exp $
 
 $string['activitydone'] = 'Activities done';
 $string['activitysolved'] = 'Activities completed successfully';
@@ -46,5 +46,9 @@ $string['preview_jclic']='Show JClic activity';
 
 /* Revision 20091023 */
 $string['deleteallsessions'] = 'Delete all sessions';
+
+/* Revision 20110119  - version 0.1.0.11 */
+$string['lang']='Language';
+$string['exiturl']='Exit URL';
 
 ?>

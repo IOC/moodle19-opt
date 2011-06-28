@@ -1,4 +1,4 @@
-<?PHP // $Id: jclic.php,v 1.2 2009/10/26 09:23:12 sarjona Exp $
+<?PHP // $Id: jclic.php,v 1.3 2011-05-25 12:13:03 sarjona Exp $
 // Translator: Nadav Kavalerchik - nadavkav@gmail.com
 
 $string['activitydone'] = 'פעילויות אשר הסתיימו';
@@ -47,5 +47,9 @@ $string['preview_jclic']='תצוגת פעילות JClic &nbsp;&nbsp;';
 
 /* Revision 20091023 */
 $string['deleteallsessions'] = 'מחיקת כל הפעילויות';
+
+/* Revision 20110119  - version 0.1.0.11 */
+$string['lang']='שפה';
+$string['exiturl']='כתובת עמוד סיום';
 
 ?>

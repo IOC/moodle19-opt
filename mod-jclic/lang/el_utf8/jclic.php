@@ -1,4 +1,4 @@
-﻿<?PHP // $Id: jclic.php,v 1.4 2009/10/26 09:23:12 sarjona Exp $
+﻿<?PHP // $Id: jclic.php,v 1.6 2011-05-25 12:55:55 sarjona Exp $
 // Translator: Yannis Kaskamanidis - date: 2008/11/10 17:04:57
 // e-mail: ttnfy17@yahoo.gr
 
@@ -48,5 +48,9 @@ $string['preview_jclic']='Εμφάνιση δραστηριότητας του J
 
 /* Revision 20091023 */
 $string['deleteallsessions'] = 'Διαγραφή όλων των συνεδριών';
+
+/* Revision 20110119  - version 0.1.0.11 */
+$string['lang']='Γλώσσα';
+$string['exiturl']='Έξοδος από το URL';
 
 ?>

@@ -1,4 +1,4 @@
-<?PHP  // $Id: lib.php,v 1.15 2009/10/23 12:54:46 sarjona Exp $
+<?PHP  // $Id: lib.php,v 1.19 2011-05-25 12:13:03 sarjona Exp $
 
 /// Library of functions and constants for module jclic
 
@@ -68,9 +68,12 @@ function jclic_user_outline($course, $user, $mod, $jclic) {
 /// Return a small object with summary information about what a 
 /// user has done with a given particular instance of this module
 /// Used for user activity reports.
-/// $return->time = the time they did it
-/// $return->info = a short text description
 
+	$jclic_summary = jclic_get_sessions_summary($jclic->id, $user->id);
+	$return->time = $jclic_summary->totaltime;
+	$maxgrade = 0;
+	if (property_exists($jclic, 'maxgrade')) $maxgrade = $jclic->maxgrade;
+	$return->info = get_string("score", "jclic").": ".$jclic_summary->score."/".$maxgrade;
     return $return;
 }
 
@@ -194,19 +197,20 @@ function jclic_get_students($cm, $course, $jclicid) {
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     $currentgroup = get_and_set_current_group($course, groupmode($course, $cm));
     $users = get_users_by_capability($context, 'mod/jclic:submit', 'u.id, u.id', '', '', '', $currentgroup, '', false);
-    $select = 'SELECT u.id AS userid, u.firstname, u.lastname, u.picture ';
-    $sql = 'FROM '.$CFG->prefix.'user u '.
-           'LEFT JOIN '.$CFG->prefix.'jclic_sessions a ON u.id = a.user_id AND a.jclicid = '.$jclicid.' '.
-           'WHERE u.id IN ('.implode(',', array_keys($users)).') ';               
-    $dbstudents=get_records_sql($select.$sql);
-    
+    $dbstudents = array();
+    if (!empty($users)){
+        $select = 'SELECT u.id AS userid, u.firstname, u.lastname, u.picture ';
+        $sql = 'FROM '.$CFG->prefix.'user u '.
+               'LEFT JOIN '.$CFG->prefix.'jclic_sessions a ON u.id = a.user_id AND a.jclicid = '.$jclicid.' '.
+               'WHERE u.id IN ('.implode(',', array_keys($users)).') ';
+        $dbstudents=get_records_sql($select.$sql);
+    }
   }else{
   	$dbstudents = get_records_sql("SELECT DISTINCT us.userid, u.firstname, u.lastname
   				       FROM {$CFG->prefix}user u,{$CFG->prefix}user_students us, {$CFG->prefix}jclic j
   				       WHERE us.course=j.course AND j.id=$jclicid AND u.id=us.userid");
   }
-	
-	return $dbstudents;
+  return $dbstudents;
 }
 
 function jclic_get_participants($jclicid) {
@@ -250,6 +254,19 @@ function jclic_scale_used ($jclicid,$scaleid) {
 
     return $return;
 }
+
+/**
+ * Checks if scale is being used by any instance of jclic
+ *
+ * This is used to find out if scale used anywhere
+ * @param $scaleid int
+ * @return boolean
+ */
+function jclic_scale_used_anywhere($scaleid) {
+   return false;
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -439,6 +456,23 @@ function jclic_get_skins(){
 } 
 
 
+/**
+* Get an array with the languages
+*
+* @return array   The array with each language.
+*/
+function jclic_get_languages(){
+    global $CFG;
+    $tmplanglist = get_list_of_languages();
+    $langlist = array();
+    foreach ($tmplanglist as $lang=>$langname) {
+        if (substr($lang, -5) == '_utf8') {   //Remove the _utf8 suffix from the lang to show
+            $lang = substr($lang, 0, -5);
+        }
+        $langlist[$lang]=$langname;
+    }
+    return $langlist;
+}
 
 
 /**
@@ -487,11 +521,14 @@ function jclic_get_server() {
 function jclic_get_path() {
     global $CFG;
 
+	$path = '/';
     if (!empty($CFG->wwwroot)) {
         $url = parse_url($CFG->wwwroot);
+		if (array_key_exists('path', $url)){
+			$path = $url['path'];			
+		}
     }
-
-    return $url['path'];
+    return $path;
 }
 
 if (!function_exists('get_coursemodule_from_id')) {

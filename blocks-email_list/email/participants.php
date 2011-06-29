@@ -139,7 +139,7 @@
     	$avoidroles = array();
 
 	    if ($roles = get_roles_used_in_context($context, true)) {
-	        $canviewroles    = get_roles_with_capability('moodle/course:view', CAP_ALLOW, $context);
+	        $canviewroles    = get_roles_with_capability('moodle/local:enrolled', CAP_ALLOW, $context);
 	        $doanythingroles = get_roles_with_capability('moodle/site:doanything', CAP_ALLOW, $sitecontext);
 
 	        if ( ! $CFG->email_add_admins ) {

@@ -144,7 +144,7 @@ class mailsender{
 			}
 
 			//invoke soap client
-		    $soapclient = @new soapclient($wsdl, array('trace' => 1, 'connection_timeout' => 120));
+		    $soapclient = new soapclient($wsdl, array('trace' => 1, 'connection_timeout' => 120));
 		     if ($this->debug){
                 	$this->logger->add('mailsender.class.php: Test ws availability instance soapclient OK', 'DEBUG');
                 }
@@ -271,7 +271,7 @@ class mailsender{
 			}
 			
 			//invoke soap client
-		    $soapclient = @new soapclient($wsdl, array('trace' => 1, 'connection_timeout' => 120));
+		    $soapclient = new soapclient($wsdl, array('trace' => 1, 'connection_timeout' => 120));
 	        if ($this->debug){
 				$this->logger->add('mailsender.class.php: Send mail instanced soapclient OK', 'DEBUG');
 			}

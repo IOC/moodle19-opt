@@ -640,12 +640,13 @@ class mailsender{
         $replyAddress=addslashes($replyAddress);
 //********** END
 
+
 //XTEC ************ MODIFY -> Improved control of well-formed email
 //2011.03.18 @mmartinez
-		if (!eregi("^[a-zA-Z0-9]+[a-zA-Z0-9_.-]+[a-zA-Z0-9]+@[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9.-]+[a-zA-Z0-9]+.[a-z]{2,4}$", $replyAddress)){
 //*********** ORIGINAL
         //if (!preg_match('/^[^0-9][a-zA-Z0-9_-]+([.][a-zA-Z0-9_-]+)*[@][a-zA-Z0-9_-]+([.][a-zA-Z0-9_-]+)*[.][a-zA-Z]{2,4}$/',$replyAddress)){
 //*********** END
+                if (!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i", $replyAddress)) {
 		    if ($this->islogger){
 			    $this->logger->add('mailsender.class.php: ReplyAddress KO, "'.$replyAddress.'" is not a valid email address', 'ERROR');
 		    }

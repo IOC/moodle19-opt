@@ -149,7 +149,6 @@ class mailsender{
                 	$this->logger->add('mailsender.class.php: Test ws availability instance soapclient OK', 'DEBUG');
                 }
 
-		    set_time_limit(120);
 
 		    //call the ws method
 		    $response = $soapclient->__doRequest(utf8_encode($xml), $this->enviroment.'?wsdl', 'disponibilitat', SOAP_1_1, 0);
@@ -277,7 +276,6 @@ class mailsender{
 				$this->logger->add('mailsender.class.php: Send mail instanced soapclient OK', 'DEBUG');
 			}
 			
-			set_time_limit(120);
 			
 		    //call the ws method
 		    $response = $soapclient->__doRequest($xml, $this->enviroment.'?wsdl', 'enviament', SOAP_1_1, 0);

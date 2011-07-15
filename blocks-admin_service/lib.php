@@ -551,7 +551,7 @@ class exectophp {
 
 function run_script($url){
 	global $CFG;
-    run_online_url('http://localhost/'.basename($CFG->wwwroot).'/'.$url,false); 	
+        run_online_url($CFG->wwwroot.'/'.$url,false);
 }
 /**
  * executa una url
@@ -565,7 +565,7 @@ function run_script($url){
 		$proces= new exectophp();
 		//$txt = "wget -q -T 0 -O /dev/null http://localhost/mod/admin_upc/carregues/prova_cron.php";
 		//$txt = "wget -q -T 0 -O /dev/null $url";
-		$txt = "curl -s $url > /dev/null";
+		$txt = "/opt/coolstack/bin/curl -s $url";
 		$proces->show = $show;
 		$proces->backgroundtophp($txt);
  }

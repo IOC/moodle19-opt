@@ -73,8 +73,10 @@ if(generic_connect()){
 			if ($read != 0 || $write != 0){
 				//Insetem la informacio.
 				$row = new Stdclass();
-				$row->read = $read;
-				$row->write = $write;
+                                    $row = array();
+                                    $row["'read'"] = $read;
+                                    $row["'write'"] = $write;
+                                    $row = (object) $row;
 				$row->module = $mod;
 				$row->categoryid = $category;
 				$row->courseid = $courseid;

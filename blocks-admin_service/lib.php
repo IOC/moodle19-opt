@@ -687,5 +687,97 @@ function run_script($url){
 		return print_box_end($return);
 }
 	
+function getReadSelect($module){
+		switch ($module) {
+			case 'forum':
+				return "(action = 'view discussion' OR action = 'view forum')";
+				break;
+			case 'glossary':
+				return "(action = 'view' OR action = 'view entry')";
+				break;
+			case 'journal':
+				return "(action = 'view' OR action = 'view responses')";
+				break;
+			case 'lesson':
+				return "(action = 'view' OR action = 'start')";
+				break;
+			case 'message':
+				return "action = 'read'";
+				break;
+			case 'quiz':
+				return "(action = 'view' OR action = 'start attempt' OR action = 'attempt')";
+				break;
+			case 'survey':
+				return "action = 'view form'";
+				break;
+			case 'wiki':
+				return "(action = 'diff' OR action = 'edit' OR action = 'info')";
+				break;
+			case 'workshop':
+				return "(action = 'view' OR action = 'submit' OR action = 'assessments' OR action = 'assess')";
+				break;
+			case 'blog':
+				return "action = 'blog view'";
+				break;
+			/*Casos amb registres iguals*/
+			/*case 'assignment':
+			case 'calendar':
+			case 'chat':
+			case 'choice':
+			case 'internalmail':
+			case 'label':
+			case 'resource':
+			case 'scorm':
+			case 'data':
+			case 'lams':
+			case 'grade':*/
+			default:
+				return "action = 'view'";
+				break;
+		}
+	}
+
+	function getWriteSelect($module){
+		switch ($module) {
+			case 'forum':
+				return "action = 'add%'";
+				break;
+			case 'glossary':
+				return "(action = 'add' OR action = 'add entry' OR action = 'add comment')";
+				break;
+			case 'journal':
+				return "(action = 'add' OR action = 'add entry')";
+				break;
+			case 'message':
+				return "action = 'write'";
+				break;
+			case 'blog':
+				return "action = 'blog add'";
+				break;
+			case 'grade':
+				return "(action = 'import' OR action = 'edit')";
+				break;
+			/*Casos amb registres iguals
+			case 'assignment':
+			case 'calendar':
+			case 'chat':
+			case 'choice':
+			case 'internalmail':
+			case 'label':
+			case 'resource':
+			case 'scorm':
+			case 'data':
+			case 'lams':
+			case 'lesson':
+			case 'quiz':
+			case 'survey':
+			case 'wiki':
+			case 'workshop':*/
+			default:
+				return "action = 'add'";
+				break;
+		}
+	}
+	
 	
 ?>

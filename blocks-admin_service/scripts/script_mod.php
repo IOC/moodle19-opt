@@ -67,8 +67,8 @@ if(generic_connect()){
 			$read_sel = getReadSelect($mod);
 			$write_sel = getWriteSelect($mod);
 			
-			$read = generic_count_records_select("{$prefix}log", "time BETWEEN $time_start AND $time_end AND module = '$mod' AND $read_sel");
-			$write = generic_count_records_select("{$prefix}log", "time BETWEEN $time_start AND $time_end AND module = '$mod' AND $write_sel");
+			$read = generic_count_records_select("{$prefix}log", "time BETWEEN $time_start AND $time_end AND module = '$mod' AND $read_sel AND course=$courseid");
+			$write = generic_count_records_select("{$prefix}log", "time BETWEEN $time_start AND $time_end AND module = '$mod' AND $write_sel AND course=$courseid");
 			
 			if ($read != 0 || $write != 0){
 				//Insetem la informacio.

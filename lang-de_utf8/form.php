@@ -1,4 +1,4 @@
-<?PHP // $Id: form.php,v 1.16 2010/01/16 14:35:37 krause Exp $ 
+<?PHP // $Id: form.php,v 1.18 2011/07/04 16:41:48 krause Exp $ 
       // form.php - created with Moodle 2.0 dev (Build: 20100114) (2010011400)
 
 
@@ -34,7 +34,7 @@ $string['security'] = 'Sicherheit';
 $string['selectallornone'] = 'Alle/keine auswählen';
 $string['selected'] = 'Ausgewählt';
 $string['showadvanced'] = 'Zusätzliche Felder anzeigen';
-$string['somefieldsrequired'] = 'Die markierten Pflichtfelder müssen ausgefüllt werden! $a';
+$string['somefieldsrequired'] = 'Pflichtfelder$a';
 $string['time'] = 'Zeit';
 $string['timeunit'] = 'Zeiteinheit';
 $string['timing'] = 'Zeitsteuerung';

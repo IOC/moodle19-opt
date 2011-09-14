@@ -1,4 +1,4 @@
-<?php // $Id: locallib.php,v 1.49.2.73 2011/02/10 13:19:11 mchurch Exp $
+<?php // $Id: locallib.php,v 1.49.2.74 2011/09/12 14:41:35 joseph_rezeau Exp $
 
 /**
  * This library replaces the phpESP application with Moodle specific code. It will eventually
@@ -1166,11 +1166,7 @@ class questionnaire {
 
             case 8: // Rate
             	$num = 0;
-                if ($record->precise != 2) {  //dev jr 9 JUL 2010
-            		$nbchoices = count($record->choices);
-                } else { // if "No duplicate choices", can restrict nbchoices to number of rate items specified
-                	$nbchoices = $record->length;
-                }
+                $nbchoices = count($record->choices);
                 $na = get_string('notapplicable', 'questionnaire');
                 foreach ($record->choices as $cid => $choice) {
                     // in case we have named degrees on the Likert scale, count them to substract from nbchoices
@@ -1195,6 +1191,8 @@ class questionnaire {
                     $strmissing .= get_string('num', 'questionnaire').$qnum.'. ';
                     break;
                 }
+                // if nodupes + named degrees + nb choice restricted, nbchoices may be > actual choices, so limit it to $record->length
+                $nbchoices = min ($nbchoices, $record->length);
                 if ( $num != $nbchoices && $num!=0 ) {
                     $wrongformat++;
                     $strwrongformat .= get_string('num', 'questionnaire').$qnum.'. ';

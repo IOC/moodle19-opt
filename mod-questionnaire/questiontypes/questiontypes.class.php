@@ -1,4 +1,4 @@
-<?php // $Id: questiontypes.class.php,v 1.31.2.55 2011/02/07 20:03:00 mchurch Exp $
+<?php // $Id: questiontypes.class.php,v 1.31.2.56 2011/10/03 13:48:08 joseph_rezeau Exp $
 
 /**
  * This file contains the parent class for questionnaire question types.
@@ -544,13 +544,14 @@ class questionnaire_question {
                               FROM {$CFG->prefix}questionnaire_quest_choice c2, {$CFG->prefix}questionnaire_{$this->response_table} a2
                               WHERE c2.question_id = {$this->id} AND a2.question_id = {$this->id} AND a2.choice_id = c2.id AND a2.rank >= 0{$ridstr}
                               GROUP BY c2.id) a ON a.id = c.id";
-                $results = get_records_sql($sql);
-                /// Reindex by 'content'. Can't do this from the query as it won't work with MS-SQL.
-                foreach ($results as $key => $result) {
-                    $results[$result->content] = $result;
-                    unset($results[$key]);
+                if ($results = get_records_sql($sql) ){
+	                /// Reindex by 'content'. Can't do this from the query as it won't work with MS-SQL.
+	                foreach ($results as $key => $result) {
+	                    $results[$result->content] = $result;
+	                    unset($results[$key]);
+	                }
+	                return $results;
                 }
-                return $results;
 
             // case where scaleitems is less than possible choices
             } else {
@@ -561,15 +562,16 @@ class questionnaire_question {
                               FROM {$CFG->prefix}questionnaire_quest_choice c2, {$CFG->prefix}questionnaire_{$this->response_table} a2
                               WHERE c2.question_id = {$this->id} AND a2.question_id = {$this->id} AND a2.choice_id = c2.id AND a2.rank >= 0{$ridstr}
                               GROUP BY c2.id) a ON a.id = c.id";
-                $results = get_records_sql($sql);
-                // formula to calculate the best ranking order
-                $nbresponses = count($rids);
-                foreach ($results as $key => $result) {
-                    $result->average = ($result->sum + ($nbresponses - $result->num) * ($this->length + 1)) / $nbresponses;
-                    $results[$result->content] = $result;
-                    unset($results[$key]);
+                if ($results = get_records_sql($sql) ){
+	                // formula to calculate the best ranking order
+	                $nbresponses = count($rids);
+	                foreach ($results as $key => $result) {
+	                    $result->average = ($result->sum + ($nbresponses - $result->num) * ($this->length + 1)) / $nbresponses;
+	                    $results[$result->content] = $result;
+	                    unset($results[$key]);
+	                }
+	                return $results;
                 }
-                return $results;
             }
         } else {
             $sql = 'SELECT A.rank, COUNT(A.response_id) AS num '.

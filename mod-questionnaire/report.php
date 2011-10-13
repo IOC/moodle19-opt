@@ -1,4 +1,4 @@
-<?php  // $Id: report.php,v 1.14.2.21 2011/04/11 12:39:42 mchurch Exp $
+<?php  // $Id: report.php,v 1.14.2.22 2011/10/02 16:44:10 joseph_rezeau Exp $
 
 /// This page prints a particular instance of questionnaire
     global $SESSION, $CFG;
@@ -372,7 +372,7 @@
         $extranav = 'Survey Reports';
         $navigation = build_navigation($extranav, $questionnaire->cm);
 
-        print_header_simple(get_string('deletingresponse', 'questionnaire'), '', $navigation);
+        print_header_simple(get_string('deleteallresponses', 'questionnaire'), '', $navigation);
 
         /// print the tabs
         $SESSION->questionnaire->current_tab = 'deleteall';

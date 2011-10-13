@@ -1,4 +1,4 @@
-<?php // $Id: locallib.php,v 1.49.2.74 2011/09/12 14:41:35 joseph_rezeau Exp $
+<?php // $Id: locallib.php,v 1.49.2.76 2011/10/03 16:10:26 joseph_rezeau Exp $
 
 /**
  * This library replaces the phpESP application with Moodle specific code. It will eventually
@@ -1117,6 +1117,17 @@ class questionnaire {
                 }
                 $resp = $formdata->{'q'.$qid};
                 $pos = strpos($resp, 'other_');
+
+                            // "other" choice is checked but text box is empty
+                if (is_int($pos) == true){
+                    $othercontent = "q".$qid.substr($resp, 5);
+                    if ( !$formdata->$othercontent ) {
+                        $wrongformat++;
+                        $strwrongformat .= get_string('num', 'questionnaire').$qnum.'. ';
+                        break;
+                    }
+                }
+
                 if (is_int($pos) == true && $record->required == 'y') {
                     $resp = 'q'.$qid.''.substr($resp,5);
                     if (!$formdata->$resp) {
@@ -1134,6 +1145,17 @@ class questionnaire {
                 $nbrespchoices = 0;
                 foreach ($resps as $resp) {
                     $pos = strpos($resp, 'other_');
+
+                    // "other" choice is checked but text box is empty
+                    if (is_int($pos) == true){
+                        $othercontent = "q".$qid.substr($resp, 5);
+                        if ( !$formdata->$othercontent ) {
+                            $wrongformat++;
+                            $strwrongformat .= get_string('num', 'questionnaire').$qnum.'. ';
+                            break;
+                        }
+                    }
+
                     if (is_numeric($resp) || is_int($pos) == true) { //JR fixed bug CONTRIB-884
                         $nbrespchoices++;
                     }
@@ -1191,8 +1213,11 @@ class questionnaire {
                     $strmissing .= get_string('num', 'questionnaire').$qnum.'. ';
                     break;
                 }
-                // if nodupes + named degrees + nb choice restricted, nbchoices may be > actual choices, so limit it to $record->length
-                $nbchoices = min ($nbchoices, $record->length);
+                // if nodupes and nb choice restricted, nbchoices may be > actual choices, so limit it to $record->length
+                $isrestricted = ($record->length < count($record->choices)) && $record->precise == 2;
+                if ($isrestricted) {
+                    $nbchoices = min ($nbchoices, $record->length);
+                }
                 if ( $num != $nbchoices && $num!=0 ) {
                     $wrongformat++;
                     $strwrongformat .= get_string('num', 'questionnaire').$qnum.'. ';

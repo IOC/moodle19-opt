@@ -1,4 +1,4 @@
-<?php // $Id: index.php,v 1.6.2.6 2008/11/21 15:10:15 joseph_rezeau Exp $
+<?php // $Id: index.php,v 1.6.2.7 2011/09/19 16:58:00 joseph_rezeau Exp $
 /// This page lists all the instances of Questionnaire in a particular course
 
 
@@ -44,7 +44,7 @@
     $table->align = array ("LEFT", "LEFT", 'LEFT');
 
     foreach ($questionnaires as $questionnaire) {
-        $realm = get_field('questionnaire_survey', 'realm', 'id', $questionnaire->id);
+        $realm = get_field('questionnaire_survey', 'realm', 'id', $questionnaire->sid);
         // template surveys should NOT be displayed as an activity to students
         if (!($realm == 'template' && !has_capability('mod/questionnaire:manage',get_context_instance(CONTEXT_MODULE,$questionnaire->coursemodule)))) {
             if (!$questionnaire->visible) {

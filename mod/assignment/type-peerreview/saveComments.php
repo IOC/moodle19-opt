@@ -34,7 +34,7 @@ print_header();
 // Get course ID and assignment ID
 $id   = optional_param('id', 0, PARAM_INT);          // Course module ID
 $a    = optional_param('a', 0, PARAM_INT);           // Assignment ID
-$comments = clean_param(htmlspecialchars(optional_param('comments',NULL,PARAM_RAW)),PARAM_CLEAN);
+$comments = optional_param('comments',NULL,PARAM_RAW);
 
 if ($id) {
     if (! $cm = get_coursemodule_from_id('assignment', $id)) {

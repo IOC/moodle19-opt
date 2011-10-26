@@ -221,7 +221,7 @@ class assignment_peerreview extends assignment_base {
 			else {
 
 				// Save review
-				if($comment = clean_param(htmlspecialchars(optional_param('comment',NULL,PARAM_RAW)),PARAM_CLEAN)) {
+				if($comment = optional_param('comment',NULL,PARAM_RAW)) {
                     print_heading(get_string('reviewnumber','assignment_peerreview',$numberOfReviewsCompleted+1));
 					notify(get_string('savingreview','assignment_peerreview'),'notifysuccess');
 					for($i=0; $i<$numberOfCriteria; $i++) {
@@ -505,7 +505,7 @@ class assignment_peerreview extends assignment_base {
 					echo '<td><em>'.get_string('conductedby','assignment_peerreview').': '.($reviews[$numberOfReviewsOfThisStudent-$i-1]->teacherreview==1?$reviews[$numberOfReviewsOfThisStudent-$i-1]->firstname.' '.$reviews[$numberOfReviewsOfThisStudent-$i-1]->lastname.' ('.$this->course->teacher.')':$this->course->student.' '.$studentCount++).'</em></td>';
 					echo '<td class="reviewDateColumn"><em>'.userdate($reviews[$numberOfReviewsOfThisStudent-$i-1]->timemodified,get_string('strftimedatetime')).'</em></td>';
 					echo '</tr>';
-					echo '<tr><td colspan="2"><div class="commentTextBox" style="background:'.$this->REVIEW_COMMENT_COLOURS[($numberOfReviewsOfThisStudent-$i-1)%count($this->REVIEW_COMMENT_COLOURS)].';">'.format_string(stripslashes($reviews[$numberOfReviewsOfThisStudent-$i-1]->reviewcomment)).'</div></td></tr>';
+					echo '<tr><td colspan="2"><div class="commentTextBox" style="background:'.$this->REVIEW_COMMENT_COLOURS[($numberOfReviewsOfThisStudent-$i-1)%count($this->REVIEW_COMMENT_COLOURS)].';">'.s($reviews[$numberOfReviewsOfThisStudent-$i-1]->reviewcomment).'</div></td></tr>';
 
 					if($reviews[$numberOfReviewsOfThisStudent-$i-1]->teacherreview!=1) {
 						echo '<tr class="reviewDetailsRow"><td colspan="2"><em>';
@@ -1294,7 +1294,7 @@ class assignment_peerreview extends assignment_base {
 		echo '<table width="100%" cellspacing="2">';
 		echo '<tr>';
 		echo '<td style="vertical-align:top;" width="50%">'.get_string('comment','assignment_peerreview').'<br /><textarea name="newComment" rows="10" style="width:99%;" onkeypress="allowSaveNew();"></textarea><td>';
-		echo '<td style="vertical-align:top;">'.get_string('savedcomments','assignment_peerreview').' (<a href="#null" onclick="commentForm=document.getElementById(\'commentsForm\'); commentForm.comments.value=document.getElementById(\'savedcomments\').value; window.open(\'\', \'savedcommentsWindow\', \'height=300,width=400\'); commentForm.target=\'savedcommentsWindow\'; commentForm.submit();" />'.get_string('savecomments','assignment_peerreview').'</a>)<br /><textarea rows="10" style="width:99%;" id="savedcomments" >'.($this->assignment->savedcomments?format_string(stripslashes($this->assignment->savedcomments)):'').'</textarea><td>';
+		echo '<td style="vertical-align:top;">'.get_string('savedcomments','assignment_peerreview').' (<a href="#null" onclick="commentForm=document.getElementById(\'commentsForm\'); commentForm.comments.value=document.getElementById(\'savedcomments\').value; window.open(\'\', \'savedcommentsWindow\', \'height=300,width=400\'); commentForm.target=\'savedcommentsWindow\'; commentForm.submit();" />'.get_string('savecomments','assignment_peerreview').'</a>)<br /><textarea rows="10" style="width:99%;" id="savedcomments" >'.s($this->assignment->savedcomments).'</textarea><td>';
 		echo '</tr>';
 		echo '</table>';
 		echo '</td>';
@@ -1326,7 +1326,7 @@ class assignment_peerreview extends assignment_base {
             }
             echo userdate($reviews[$numberOfReviewsOfThisStudent-$i-1]->timemodified,get_string('strftimedatetime')).'</em></td>';
 			echo '</tr>';
-			echo '<tr><td colspan="2"><textarea name="preExistingComment'.($reviews[$numberOfReviewsOfThisStudent-$i-1]->review).'" rows="3" class="commentTextBox" onkeypress="allowSavePrev()" style="background:'.$this->REVIEW_COMMENT_COLOURS[($numberOfReviewsOfThisStudent-$i-1)%count($this->REVIEW_COMMENT_COLOURS)].';">'.format_string(stripslashes($reviews[$numberOfReviewsOfThisStudent-$i-1]->reviewcomment)).'</textarea></td></tr>';
+			echo '<tr><td colspan="2"><textarea name="preExistingComment'.($reviews[$numberOfReviewsOfThisStudent-$i-1]->review).'" rows="3" class="commentTextBox" onkeypress="allowSavePrev()" style="background:'.$this->REVIEW_COMMENT_COLOURS[($numberOfReviewsOfThisStudent-$i-1)%count($this->REVIEW_COMMENT_COLOURS)].';">'.s($reviews[$numberOfReviewsOfThisStudent-$i-1]->reviewcomment).'</textarea></td></tr>';
 
 			if($reviews[$numberOfReviewsOfThisStudent-$i-1]->flagged==1) {
 				echo '<tr class="reviewDetailsRow" style="color:#ff0000;"><td colspan="2"><em>'.get_string('flagged','assignment_peerreview').'&nbsp;<img src="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/images/flagRed.gif"></em></td></tr>';
@@ -1451,7 +1451,7 @@ class assignment_peerreview extends assignment_base {
 				// Process online text
 				if(isset($this->assignment->var3) && $this->assignment->var3==self::ONLINE_TEXT) {
 					$newsubmission = $this->prepare_new_submission($USER->id);
-					$newsubmission->data1 = addslashes(required_param('text',PARAM_CLEANHTML));
+					$newsubmission->data1 = required_param('text',PARAM_RAW);
 					$sumbissionName = get_string('yoursubmission','assignment_peerreview');
 					// echo '<pre>'.print_r($_POST,true).'</pre>';
 				}
@@ -1644,7 +1644,7 @@ class assignment_peerreview extends assignment_base {
         if ($retval) {
             $assignment_extra = get_record('assignment_peerreview', 'assignment', $assignment->id);
             $assignment_extra->fileextension = $fileextension;
-            $assignment_extra->savedcomments = clean_param($assignment_extra->savedcomments,PARAM_CLEAN);
+            $assignment_extra->savedcomments = addslashes($assignment_extra->savedcomments);
             update_record('assignment_peerreview', $assignment_extra);
         }
 
@@ -1761,7 +1761,7 @@ class assignment_peerreview extends assignment_base {
 						for($i=0; $i<$numberOfCriteria; $i++) {
 							set_field('assignment_review_criterion','checked',optional_param('checked'.$reviewID.'crit'.$i,0,PARAM_BOOL),'review',$reviewID,'criterion',$i);
 						}
-						set_field('assignment_review','reviewcomment',clean_param(htmlspecialchars(optional_param('preExistingComment'.$reviewID,NULL,PARAM_RAW)),PARAM_CLEAN),'id',$reviewID);
+						set_field('assignment_review','reviewcomment',optional_param('preExistingComment'.$reviewID,NULL,PARAM_RAW),'id',$reviewID);
 					}
 				}
 			}
@@ -1772,7 +1772,7 @@ class assignment_peerreview extends assignment_base {
 				$review->downloaded = 1;
 				$review->complete = 1;
 				$review->teacherreview = 1;
-				$review->reviewcomment = clean_param(htmlspecialchars(optional_param('newComment',NULL,PARAM_RAW)),PARAM_CLEAN);
+				$review->reviewcomment = optional_param('newComment',NULL,PARAM_RAW);
 				$newReviewID = insert_record('assignment_review',$review,true);
 				for($i=0; $i<$numberOfCriteria; $i++) {
 					$criterionToSave = new Object;

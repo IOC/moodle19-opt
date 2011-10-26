@@ -88,7 +88,7 @@ if($view=='peerreview' || $view=='selfview') {
                 print_heading(get_string('reviewnumber','assignment_peerreview',2-count($reviewsToDownload)+1),"center");
                 if ($submission = $assignmentinstance->get_submission($reviewsToDownload[0]->reviewee)) {
                     print_heading(get_string('keepopenwhilereviewing','assignment_peerreview'),"center",3);
-                    print_simple_box(format_text(stripslashes($submission->data1), PARAM_CLEAN), 'center', '100%');
+                    print_simple_box(format_text($submission->data1, FORMAT_HTML), 'center', '100%');
                 } else {
                     print_simple_box(get_string('emptysubmission', 'assignment'), 'center', '100%');
                 }
@@ -107,7 +107,7 @@ if($view=='peerreview' || $view=='selfview') {
         print_header(get_string('yoursubmission','assignment_peerreview'));
         print_heading(get_string('yoursubmission','assignment_peerreview'),"center");
         if ($submission = $assignmentinstance->get_submission($USER->id)) {
-            print_simple_box(format_text(stripslashes($submission->data1), PARAM_CLEAN), 'center', '100%');
+            print_simple_box(format_text($submission->data1, FORMAT_HTML), 'center', '100%');
         } else {
             print_simple_box(get_string('emptysubmission', 'assignment'), 'center', '100%');
         }
@@ -121,7 +121,7 @@ else if($view=='moderation') {
     print_header(fullname($user));
     print_heading(fullname($user));
     if ($submission = $assignmentinstance->get_submission($userid)) {
-        print_simple_box(format_text(stripslashes($submission->data1), PARAM_CLEAN), 'center', '100%');
+        print_simple_box(format_text($submission->data1, FORMAT_HTML), 'center', '100%');
     } else {
         print_simple_box(get_string('emptysubmission', 'assignment'), 'center', '100%');
     }

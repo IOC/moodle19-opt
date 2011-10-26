@@ -83,7 +83,7 @@ if(optional_param('save',NULL,PARAM_TEXT)!=NULL) {
     if (isset($assignmentinstance->assignment->var3) && $assignmentinstance->assignment->var3==assignment_peerreview::ONLINE_TEXT) {
         $submission = $assignmentinstance->get_submission($userid);
         $submission->timemodified = time();
-        $submission->data1 = required_param('text',PARAM_CLEANHTML);
+        $submission->data1 = required_param('text',PARAM_RAW);
         if (update_record('assignment_submissions', $submission)) {
             add_to_log($assignmentinstance->course->id, 'assignment', 'upload', 
                     'view.php?a='.$assignmentinstance->assignment->id, $assignmentinstance->assignment->id, $assignmentinstance->cm->id);

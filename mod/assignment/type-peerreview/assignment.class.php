@@ -259,7 +259,7 @@ class assignment_peerreview extends assignment_base {
 					}
 					else {
 						require_once($CFG->libdir.'/filelib.php');
-						echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return true;" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::DOWNLOAD_PEERREVIEW_FILE.'/'.self::FILE_PREFIX.($numberOfReviewsCompleted+1).'.'.$this->assignment->fileextension.'?a='.$this->assignment->id.'&id='.$this->cm->id.'"><img class="icon" src="'.$CFG->pixpath.'/f/'.mimeinfo('icon', 'blah.'.$this->assignment->fileextension).'" alt="'.get_string('lostfile','assignment_peerreview').'" />'.get_string('lostfile','assignment_peerreview').'</a>';
+						echo '<a onclick="setTimeout(\'document.getElementById(\\\'continueButton\\\').disabled=false;\',3000);return true;" href="'.$CFG->wwwroot.'/mod/assignment/type/peerreview/'.self::DOWNLOAD_PEERREVIEW_FILE.'/'.self::FILE_PREFIX.($numberOfReviewsCompleted+1).'.'.$this->assignment->fileextension.'?a='.$this->assignment->id.'&id='.$this->cm->id.'&sesskey='.sesskey().'"><img class="icon" src="'.$CFG->pixpath.'/f/'.mimeinfo('icon', 'blah.'.$this->assignment->fileextension).'" alt="'.get_string('lostfile','assignment_peerreview').'" />'.get_string('lostfile','assignment_peerreview').'</a>';
 					}
 					echo '</div>';
 					echo '<p id="showDescription"><a href="#null" onclick="document.getElementById(\'hiddenDescription\').style.display=\'block\';document.getElementById(\'showDescription\').style.display=\'none\';">'.get_string('showdescription','assignment_peerreview').'</a></p>';

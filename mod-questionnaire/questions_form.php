@@ -1,8 +1,8 @@
-<?php // $Id: questions_form.php,v 1.21.2.6 2010/08/17 21:55:11 joseph_rezeau Exp $
+<?php // $Id: questions_form.php,v 1.21.2.7 2011/11/14 08:30:23 joseph_rezeau Exp $
 /**
 * print the form to add or edit a questionnaire-instance
 *
-* @version $Id: questions_form.php,v 1.21.2.6 2010/08/17 21:55:11 joseph_rezeau Exp $
+* @version $Id: questions_form.php,v 1.21.2.7 2011/11/14 08:30:23 joseph_rezeau Exp $
 * @author Mike Churchward
 * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
 * @package questionnaire
@@ -317,7 +317,7 @@ class questionnaire_edit_question_form extends moodleform {
             $stryes = get_string('yes');
             $strno  = get_string('no');
 
-            $mform->addElement('text', 'name', get_string('optionalname', 'questionnaire'), array('size'=>'25'));
+            $mform->addElement('text', 'name', get_string('optionalname', 'questionnaire'), array('size'=>'30', 'maxlength'=>'30'));
             $mform->setType('name', PARAM_TEXT);
             $mform->setHelpButton('name', array('questionname', get_string('optionalname', 'questionnaire'), 'questionnaire'));
 

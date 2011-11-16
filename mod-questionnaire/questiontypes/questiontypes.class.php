@@ -1,4 +1,4 @@
-<?php // $Id: questiontypes.class.php,v 1.31.2.56 2011/10/03 13:48:08 joseph_rezeau Exp $
+<?php // $Id: questiontypes.class.php,v 1.31.2.57 2011/11/05 08:37:31 joseph_rezeau Exp $
 
 /**
  * This file contains the parent class for questionnaire question types.
@@ -939,7 +939,7 @@ class questionnaire_question {
         }
         $name = 'q'.$this->id;
         if (isset($data->{'q'.$this->id})) {
-            $value = $data->{'q'.$this->id};
+            $value = stripslashes($data->{'q'.$this->id});
         } else {
             $value = '';
         }

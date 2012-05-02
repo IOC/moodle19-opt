@@ -74,6 +74,7 @@ function basiclti_view($instance, $makeiframe=false){
     $requestparams["oauth_callback"] = "about:blank";
 
     $submit_text = get_string('press_to_submit', 'basiclti');
+    $requestparams = basiclti_encodeBase64($requestparams);
     $parms = signParameters($requestparams, $endpoint, "POST", $key, $secret, $submit_text, $org_id /*, $org_desc*/);
 
     $debuglaunch = ( $instance->debuglaunch == 1 ) ;
@@ -185,6 +186,8 @@ function basiclti_build_request($instance, $typeconfig){
         }
         $requestparams = array_merge($custom, $requestparams);
     }
+
+    $requestparams['custom_lti_message_encoded_base64'] = 1;
 
     return $requestparams;
 }
@@ -648,6 +651,35 @@ function submittedlink($cm, $allgroups=false) {
     }
 
     return $submitted;
+}
+
+/**
+ * Data submitter are in base64 then we have to decode
+ * @author Antoni Bertran (antoni@tresipunt.com)
+ * @param $info array
+ */
+function basiclti_encodeBase64($info) {
+    if (isset($info['custom_lti_message_encoded_base64']) &&
+        $info['custom_lti_message_encoded_base64'] == 1) {
+        $keysNoEncode = array("lti_version",
+                              "lti_message_type",
+                              "tool_consumer_instance_description",
+                              "tool_consumer_instance_guid",
+                              "oauth_consumer_key",
+                              "custom_lti_message_encoded_base64",
+                              "oauth_nonce",
+                              "oauth_version",
+                              "oauth_callback",
+                              "oauth_timestamp",
+                              "basiclti_submit",
+                              "oauth_signature_method");
+        foreach ($info as $key => $item){
+            if (!in_array($key, $keysNoEncode)) {
+                $info[$key] = base64_encode($item);
+            }
+        }
+    }
+    return $info;
 }
 
 ?>

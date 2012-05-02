@@ -1,4 +1,4 @@
-<?php // $Id: form.php,v 1.24 2009/04/10 19:28:52 martignoni Exp $
+<?php // $Id: form.php,v 1.25 2012/04/19 13:13:37 martignoni Exp $
 
 $string['addfields'] = 'Ajouter $a champs au formulaire';
 $string['advancedelement'] = 'Élément supplémentaire';
@@ -20,7 +20,7 @@ $string['hideadvanced'] = 'Cacher éléments supplémentaires';
 $string['hour'] = 'Heure';
 $string['minute'] = 'Minute';
 $string['miscellaneoussettings'] = 'Réglages divers';
-$string['modstandardels'] = 'Réglages communs aux modules';
+$string['modstandardels'] = 'Réglages courants';
 $string['month'] = 'Mois';
 $string['mustbeoverriden'] = 'La méthode form_definition() dans la classe $a doit être surchargée. Veuillez corriger le code.';
 $string['nomethodforaddinghelpbutton'] = 'Il n\'y a pas de méthode pour ajouter un bouton d\'aide sur un élément $a->name (classe $a->classname) de formulaire';

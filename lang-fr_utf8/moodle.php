@@ -167,7 +167,7 @@ $string['backupmissinguserinfoperms'] = 'Remarque : cette sauvegarde ne contien
 $string['backupnameformat'] = '%%Y%%m%%d-%%H%%M';
 $string['backupnext'] = 'Prochaine sauvegarde';
 $string['backupnoneusersinfo'] = 'Remarque : cette sauvegarde ne contient aucune donnée d\'utilisateur. En conséquence, les sauvegardes de tous les modules ont été placées en mode « sans les données des utilisateurs ».  Les activités Exercice et Atelier ne seront pas incluses dans la sauvegarde, puisque ces modules ne sont pas compatibles avec de type de sauvegarde.';
-$string['backupnonisowarning'] = 'Attention ! Cette sauvegarde provient d\'une version non Unicode de Moodle (antérieure à la version 1.6). Si elle contient des textes en caractères non ISO-8859-1, ceux-ci pourront être ENDOMMAGÉS si vous la restaurez dans cette version Unicode de Moodle. Veuillez consulter la <a href=\"http://docs.moodle.org/fr/FAQ_de_sauvegarde\">FAQ de sauvegarde</a> pour plus d\'informations sur la façon de restaurer correctement cette sauvegarde.';
+$string['backupnonisowarning'] = 'Attention ! Cette sauvegarde provient d\'une version non Unicode de Moodle (antérieure à la version 1.6). Si elle contient des textes en caractères non ISO-8859-1, ceux-ci pourront être ENDOMMAGÉS si vous la restaurez dans cette version Unicode de Moodle. Veuillez consulter la <a href=\"http://docs.moodle.org/19/fr/FAQ_de_sauvegarde\">FAQ de sauvegarde</a> pour plus d\'informations sur la façon de restaurer correctement cette sauvegarde.';
 $string['backuporiginalname'] = 'Nom de la sauvegarde';
 $string['backuproleassignments'] = 'Sauvegarder les attributions de rôles pour ces rôles';
 $string['backupsavetohelp'] = 'Chemin d\'accès complet du dossier où vous voulez enregistrer les sauvegardes<br />(laissez vide pour enregistrer dans le dossier par défaut)';
@@ -525,6 +525,7 @@ $string['emaildisable'] = 'Cette adresse de courriel est désactivée';
 $string['emaildisableclick'] = 'Cliquez ici pour désactiver l\'envoi de courriels à cette adresse';
 $string['emaildisplay'] = 'Affichage de l\'adresse de courriel';
 $string['emaildisplaycourse'] = 'Seuls les membres du cours sont autorisés à voir mon adresse de courriel';
+$string['emaildisplayhidden'] = 'Adresse de courriel cachée';
 $string['emaildisplayno'] = 'Cacher à tous mon adresse de courriel';
 $string['emaildisplayyes'] = 'Autoriser tout le monde à voir mon adresse de courriel';
 $string['emailenable'] = 'Cette adresse de courriel est activée';
@@ -733,7 +734,7 @@ garanties de commercialisation ou d\'adaptation dans un but
 spécifique.
 
 Pour plus de détails, reportez-vous à la page d\'information sur la
-Licence Moodle : http://docs.moodle.org/fr/Licence';
+Licence Moodle : http://docs.moodle.org/19/fr/Licence';
 $string['grade'] = 'Note';
 $string['grades'] = 'Notes';
 $string['group'] = 'Groupe';

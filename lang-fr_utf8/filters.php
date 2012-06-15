@@ -1,4 +1,4 @@
-<?php // $Id: filters.php,v 1.17 2010/05/14 13:56:28 martignoni Exp $
+<?php // $Id: filters.php,v 1.18 2012/06/06 21:00:21 martignoni Exp $
 
 $string['actfilterhdr'] = 'Filtres actifs';
 $string['addfilter'] = 'Ajouter filtre';
@@ -29,9 +29,9 @@ $string['firstaccess'] = 'Premier accès';
 $string['globalrolelabel'] = '$a->label est $a->value';
 $string['includenever'] = 'Y compris jamais';
 $string['isactive'] = 'Actif ?';
-$string['isafter'] = 'est postérieur au $a';
+$string['isafter'] = 'est postérieur';
 $string['isanyvalue'] = 'est n\'importe quelle valeur';
-$string['isbefore'] = 'est antérieur au $a';
+$string['isbefore'] = 'est antérieur';
 $string['isbetween'] = 'est entre le $a[0] et le $a[1]';
 $string['isdefined'] = 'est défini';
 $string['isempty'] = 'est vide';

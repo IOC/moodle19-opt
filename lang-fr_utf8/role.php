@@ -1,4 +1,4 @@
-<?php // $Id: role.php,v 1.125 2010/10/11 14:36:48 martignoni Exp $ 
+<?php // $Id: role.php,v 1.126 2012/06/06 21:00:22 martignoni Exp $
 
 $string['addinganewrole'] = 'Ajout d\'un nouveau rôle';
 $string['addingrolebycopying'] = 'Ajout d\'un nouveau rôle basé sur $a';
@@ -135,7 +135,7 @@ $string['grade:manageoutcomes'] = 'Gérer les objectifs d\'évaluation';
 $string['grade:override'] = 'Court-circuiter les notes';
 $string['grade:unlock'] = 'Déverrouiller les notes ou éléments';
 $string['grade:view'] = 'Voir ses propres notes';
-$string['grade:viewall'] = 'Voir toutes les notes de tous les utilisateurs';
+$string['grade:viewall'] = 'Voir les notes d\'autres utilisateurs';
 $string['grade:viewhidden'] = 'Voir ses propres notes cachées';
 $string['hidden'] = 'Caché';
 $string['highlightedcellsshowinherit'] = 'Les cellules en surbrillance dans le tableau ci-dessous indiquent s\'il y a lieu la permission qui sera héritée. À part les capacités dont vous voulez modifier les permissions, il est suggéré de laisser le tout sur Hériter.';

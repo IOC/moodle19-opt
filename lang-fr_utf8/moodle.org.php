@@ -1,4 +1,4 @@
-<?php   // $Id: moodle.org.php,v 1.3 2009/12/30 19:11:54 martignoni Exp $
+<?php   // $Id: moodle.org.php,v 1.4 2012/06/06 20:29:30 martignoni Exp $
 
 $string['aboutdemosite'] = 'Notre site de démonstration est un site Moodle complet avec quelques échantillons de cours que vous pouvez tester en tant qu\'enseignant, étudiant ou même en tant qu\'administrateur. N\'hésitez pas à expérimenter comme vous le voulez : le site est totalement remis en état toutes les heures. Aucun problème si vous y provoquez le chaos !';
 $string['aboutdemositetitle'] = 'Site de démonstration';
@@ -49,7 +49,7 @@ $string['downloadcore'] = 'Notre méthode de distribution principale a lieu au m
 $string['downloadcoretitle'] = 'Paquetages Moodle standards';
 $string['downloadcvs'] = 'Une autre façon d\'obtenir le code source de Moodle est d\'utiliser CVS pour se connecter directement à l\'un des serveurs qui répliquent le dépôt central du code source utilisé par les développeurs Moodle. Cette méthode rend les mises à jour particulièrement faciles, même si vous avez fait des modifications locales au code source.';
 $string['downloadcvstitle'] = 'Moodle par CVS';
-$string['downloadintro'] = 'Moodle est un logiciel libre sous <a href=\"http://docs.moodle.org/fr/Licence\">Licence GPL</a>. Tout ce que nous produisons est disponible au téléchargement librement et gratuitement.';
+$string['downloadintro'] = 'Moodle est un logiciel libre sous <a href=\"http://docs.moodle.org/19/fr/Licence\">Licence GPL</a>. Tout ce que nous produisons est disponible au téléchargement librement et gratuitement.';
 $string['downloadlang'] = 'Dans les versions actuelles de Moodle, l\'ajout de nouvelles langues pour l\'interface a été automatisé et est accessible dans le menu d\'administration de votre site. Toutefois, pour certaines versions plus anciennes de Moodle, les nouveaux paquetages de langue doivent être téléchargés manuellement.';
 $string['downloadlangtitle'] = 'Paquetages de langue';
 $string['downloadlogotitle'] = 'Logos Moodle';

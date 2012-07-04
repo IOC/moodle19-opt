@@ -105,7 +105,7 @@ function basiclti_build_request($instance, $typeconfig){
     $requestparams = array(
         "resource_link_id" => $instance->id,
         "resource_link_title" => $instance->name,
-        "resource_link_description" => $instance->intro,
+        "resource_link_description" => strip_tags($instance->intro),
         "user_id" => $USER->id,
         "roles" => $role,
         "context_id" => $COURSE->id,

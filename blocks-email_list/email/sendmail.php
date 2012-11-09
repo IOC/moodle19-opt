@@ -64,6 +64,12 @@
 		print_error('forbiddensendmessage', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
 	}
 
+
+if ($course->groupmode == SEPARATEGROUPS and !groups_get_course_group($course)
+    and !has_capability('moodle/site:accessallgroups', $context)) {
+    print_error('notingroup', 'moodle', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
+}
+
     $preferencesbutton = email_get_preferences_button($courseid);
 
 	$stremail  = get_string('name', 'block_email_list');
